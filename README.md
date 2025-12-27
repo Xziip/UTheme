@@ -107,3 +107,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 If you encounter any issues or have questions:
 - Check the logs in `sd:/wiiu/logs/utheme.log` (enable logging in settings)
 - Open an [issue](https://github.com/xziip/utheme/issues) on github.
+
+## Support Me
+Support me on ko-fi: https://ko-fi.com/xziip
