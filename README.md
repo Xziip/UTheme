@@ -12,12 +12,17 @@ A Wii U theme manager and installer with network download support. Download, pre
 > :information_source: **UTheme requires the [MochaPayload](https://github.com/wiiu-env/MochaPayload)!**  
 > Make sure to update to [Aroma](https://aroma.foryour.cafe) or [Tiramisu](https://tiramisu.foryour.cafe) to use this application.
 
-## Screenshots
-Coming soon...
+### UTheme powered by [Themezer](https://themezer.net/) API!
+Thanks to [Themezer](https://themezer.net/) for providing the public API; without it, this software wouldn't exist.
 
 ## Installation
 1. Download the latest release from the [Releases](https://github.com/xziip/utheme/releases) page
 2. Extract `UTheme.wuhb` to `sd:/wiiu/apps/`
+
+## Screenshots
+
+### Main Menu and ThemeDetailScreen
+<img src='res/menu.jpg' width='300'> <img src='res/detail.png' width='300'> 
 
 ## Usage
 ### Download Themes
@@ -25,16 +30,19 @@ Coming soon...
 2. Browse available themes with preview images
 3. Touch or press **A** to view theme details
 4. Press **A** again to download and install
+<img src='res/download.jpg' width='300'>
 
 ### Manage Themes
 1. Select **"Manage Themes"** from the main menu
 2. View all installed themes
 3. Select a theme to view details, or uninstall
+<img src='res/manage.jpg' width='300'>
 
 ### Settings
 - **Logging**: Enable detailed logging for troubleshooting
 - **Language**: Switch between Chinese, English, and Japanese
 - **Background Music**: Toggle BGM on/off (auto-downloads BGM on first launch)
+<img src='res/settings.jpg' width='300'>
 
 ## Background Music
 UTheme automatically downloads background music on first launch. The BGM is downloaded from:
@@ -97,4 +105,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Support
 If you encounter any issues or have questions:
 - Check the logs in `sd:/wiiu/logs/utheme.log` (enable logging in settings)
-- Open an issue on [GitHub](https://github.com/xziip/utheme/issues)
+- Open an [issue](https://github.com/xziip/utheme/issues) on github.
