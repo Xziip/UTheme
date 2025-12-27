@@ -12,6 +12,7 @@ A Wii U theme manager and installer with network download support. Download, pre
 > :information_source: **UTheme requires the [MochaPayload](https://github.com/wiiu-env/MochaPayload)!**  
 > Make sure to update to [Aroma](https://aroma.foryour.cafe) or [Tiramisu](https://tiramisu.foryour.cafe) to use this application.
 
+
 ### UTheme powered by [Themezer](https://themezer.net/) API!
 Thanks to [Themezer](https://themezer.net/) for providing the public API; without it, this software wouldn't exist.
 
@@ -22,7 +23,7 @@ Thanks to [Themezer](https://themezer.net/) for providing the public API; withou
 ## Screenshots
 
 ### Main Menu and ThemeDetailScreen
-<img src='res/menu.jpg' width='300'> <img src='res/detail.png' width='300'> 
+<img src='res/menu.jpg' width='300'> <img src='res/detail.jpg' width='300'> 
 
 ## Usage
 ### Download Themes
@@ -30,13 +31,13 @@ Thanks to [Themezer](https://themezer.net/) for providing the public API; withou
 2. Browse available themes with preview images
 3. Touch or press **A** to view theme details
 4. Press **A** again to download and install
-<img src='res/download.jpg' width='300'>
+<img src='res/download.jpg' width='300'> <img src='res/detail.jpg' width='300'> 
 
 ### Manage Themes
 1. Select **"Manage Themes"** from the main menu
 2. View all installed themes
 3. Select a theme to view details, or uninstall
-<img src='res/manage.jpg' width='300'>
+<img src='res/manage.jpg' width='300'> <img src='res/uninstall.jpg' width='300'> 
 
 ### Settings
 - **Logging**: Enable detailed logging for troubleshooting
