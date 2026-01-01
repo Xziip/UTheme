@@ -1,2 +1,3 @@
 This is a part of MiniZIP
-Source: https://github.com/zlib-ng/minizip-ng
+
+Source: [MiniZIP](https://github.com/madler/zlib/tree/master/contrib/minizip)

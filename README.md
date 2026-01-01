@@ -19,6 +19,7 @@ Thanks to [Themezer](https://themezer.net/) for providing the public API; withou
 ## Installation
 1. Download the latest release from the [Releases](https://github.com/xziip/utheme/releases) page
 2. Extract `UTheme.wuhb` to `sd:/wiiu/apps/`
+(It will automatically download the [StyleMiiU](https://github.com/Themiify-hb/StyleMiiU-Plugin) plugin on first launch. This plugin allows you to easily load custom themes.)
 
 ## Screenshots
 
@@ -99,6 +100,17 @@ sd:/
                           # BGM source : Shop - nico's nextbots
 ```
 
+## Credits
+- [LingoBrew](https://github.com/xziip/LingoBrew) Most of the app's core functionality is based on LingoBrew.
+- [Themiify](https://github.com/Themiify-hb/Themiify). The app's patch and installation functionality is based on Themiify.
+- [WiiUIdent](https://github.com/GaryOderNichts/WiiUIdent). The GUI is based on WiiUIdent.
+- [haxcopy](https://github.com/mackieks/haxcopy). The app is also based on haxcopy.
+- [FontAwesome](https://fontawesome.com/) for the icons.
+- [libwebp](https://github.com/webmproject/libwebp) Provides webp decoding functionality.
+- [MiniZIP](https://github.com/madler/zlib/tree/master/contrib/minizip) Provide .utheme file decompression functionality
+- [Hips](https://github.com/wheremyfoodat/Hips) Provide patch functionality.
+- [Themezer](https://themezer.net/) for providing the public API.
+- [Terminus Font](https://terminus-font.sourceforge.net/) for the monospace font.
 
 ## Contributing
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -107,3 +119,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 If you encounter any issues or have questions:
 - Check the logs in `sd:/wiiu/logs/utheme.log` (enable logging in settings)
 - Open an [issue](https://github.com/xziip/utheme/issues) on github.
+
+## Support Me
+Support me on [ko-fi](https://ko-fi.com/xziip)
