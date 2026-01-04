@@ -44,26 +44,41 @@ DRC_SPLASH	:=	res/banner.png
 #-------------------------------------------------------------------------------
 # options for code generation
 #-------------------------------------------------------------------------------
+CURL_CFLAGS := $(shell $(PREFIX)pkg-config --cflags libcurl)
+CURL_LIBS := $(shell $(PREFIX)pkg-config --libs libcurl)
+
+SDL2_CFLAGS := $(shell $(PREFIX)pkg-config --cflags sdl2 SDL2_mixer SDL2_image SDL2_ttf)
+SDL2_LIBS := $(shell $(PREFIX)pkg-config --libs sdl2 SDL2_mixer SDL2_image SDL2_ttf)
+
+# Use the libmocha submodule.
+EXTERNAL_LIBMOCHA_DIR := $(TOPDIR)/external/libmocha
+
+CXX += -std=gnu++20
+
 CFLAGS	:=	-Wall -O2 -ffunction-sections \
-			$(MACHDEP)
+		$(MACHDEP)
 
 CFLAGS	+=	$(INCLUDE) -D__WIIU__ -D__WUT__ \
-			-DWEBP_DISABLE_STATS \
-			-DWEBP_REDUCE_SIZE -DWEBP_REDUCE_CSP
+		-DWEBP_DISABLE_STATS \
+		-DWEBP_REDUCE_SIZE -DWEBP_REDUCE_CSP \
+		$(CURL_CFLAGS) \
+		$(SDL2_CFLAGS)
 
-CXXFLAGS	:= $(CFLAGS) -std=gnu++20
+CXXFLAGS	:= $(CFLAGS)
 
 ASFLAGS	:=	$(ARCH)
 LDFLAGS	=	$(ARCH) $(RPXSPECS) -Wl,-Map,$(notdir $*.map) -Wl,--allow-multiple-definition
 
-LIBS	:=	-lSDL2_mixer -lmodplug -lmpg123 -lvorbisidec -logg -lSDL2_image -ljpeg -lcurl -lmbedtls -lmbedcrypto -lmbedx509 -lSDL2 -lSDL2_ttf -lfreetype -lharfbuzz -lfreetype -lpng -lbz2 -lz -lmocha -lwut
+LIBS	:=	-lmocha $(SDL2_LIBS) $(CURL_LIBS) -lwut
 
 #-------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level
 # containing include and lib
 #-------------------------------------------------------------------------------
-LIBDIRS	:= $(PORTLIBS) $(WUT_ROOT) $(WUT_ROOT)/usr
-
+LIBDIRS	:= \
+	$(EXTERNAL_LIBMOCHA_DIR) \
+	$(PORTLIBS) \
+	$(WUT_ROOT)
 
 #-------------------------------------------------------------------------------
 # no real need to edit anything past this point unless you need to add additional
@@ -144,13 +159,15 @@ endif
 all: $(BUILD)
 
 $(BUILD):
-	@$(shell [ ! -d $(BUILD) ] && mkdir -p $(BUILD))
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR)
+	@mkdir -p $(BUILD)
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 #-------------------------------------------------------------------------------
 clean:
 	@echo clean ...
-	@rm -fr $(BUILD) $(TARGET).wuhb $(TARGET).rpx $(TARGET).elf
+	@$(RM) -r $(BUILD) $(TARGET).wuhb $(TARGET).rpx $(TARGET).elf
+	@$(MAKE) --no-print-directory -C $(EXTERNAL_LIBMOCHA_DIR) clean
 
 #-------------------------------------------------------------------------------
 else
