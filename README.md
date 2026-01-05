@@ -9,7 +9,6 @@ A Wii U theme manager and installer with network download support. Download, pre
 - 🌍 **Multi-Language** - Support for Chinese, English, and Japanese
 - ⚙️ **Settings** - Customize logging, language, and music preferences
 
-> :information_source: **UTheme requires the [MochaPayload](https://github.com/wiiu-env/MochaPayload)!**  
 > Make sure to update to [Aroma](https://aroma.foryour.cafe) or [Tiramisu](https://tiramisu.foryour.cafe) to use this application.
 
 
@@ -59,7 +58,6 @@ You can customize the BGM by:
 ## Building
 For building you need: 
 - [wut](https://github.com/devkitPro/wut)
-- [libmocha](https://github.com/wiiu-env/libmocha)
 - [wiiu-sdl2](https://github.com/GaryOderNichts/SDL/tree/wiiu-sdl2-2.26)
 - wiiu-sdl2_ttf
 - wiiu-sdl2_image
