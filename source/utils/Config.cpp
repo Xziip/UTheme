@@ -7,11 +7,13 @@
 Config::Config() 
     : mLoggingEnabled(false)
     , mVerboseLogging(false)
-    , mLanguage("en-us")  // 默认英文
+    , mLanguage("")  // 默认为空,首次启动时让用户选择
     , mDownloadPath("fs:/vol/external01/themes/")
     , mAutoInstall(true)
     , mBgmEnabled(true)   // 默认开启背景音乐
     , mBgmUrl("https://raw.githubusercontent.com/xziip/utheme/main/data/BGM.mp3")  // 默认BGM下载地址
+    , mHasShownTouchHint(false)  // 默认未显示触摸提示
+    , mHasShownLanguageSwitchHint(false)  // 默认未显示语言切换提示
     , mConfigPath("fs:/vol/external01/wiiu/utheme.cfg") {
     Load();
 }
@@ -74,6 +76,20 @@ void Config::SetBgmUrl(const std::string& url) {
     }
 }
 
+void Config::SetTouchHintShown(bool shown) {
+    if (mHasShownTouchHint != shown) {
+        mHasShownTouchHint = shown;
+        Save();
+    }
+}
+
+void Config::SetLanguageSwitchHintShown(bool shown) {
+    if (mHasShownLanguageSwitchHint != shown) {
+        mHasShownLanguageSwitchHint = shown;
+        Save();
+    }
+}
+
 bool Config::Load() {
     FILE* file = fopen(mConfigPath.c_str(), "r");
     if (!file) {
@@ -103,6 +119,10 @@ bool Config::Load() {
             mBgmEnabled = (line[4] == '1');
         } else if (strncmp(line, "bgmurl=", 7) == 0) {
             mBgmUrl = &line[7];
+        } else if (strncmp(line, "touchhint=", 10) == 0) {
+            mHasShownTouchHint = (line[10] == '1');
+        } else if (strncmp(line, "languageswitchhint=", 19) == 0) {
+            mHasShownLanguageSwitchHint = (line[19] == '1');
         }
     }
     
@@ -146,6 +166,14 @@ bool Config::Save() {
     fprintf(file, "# Background music\n");
     fprintf(file, "bgm=%d\n", mBgmEnabled ? 1 : 0);
     fprintf(file, "bgmurl=%s\n", mBgmUrl.c_str());
+    fprintf(file, "\n");
+    
+    fprintf(file, "# Touch hint shown\n");
+    fprintf(file, "touchhint=%d\n", mHasShownTouchHint ? 1 : 0);
+    fprintf(file, "\n");
+    
+    fprintf(file, "# Language switch hint shown\n");
+    fprintf(file, "languageswitchhint=%d\n", mHasShownLanguageSwitchHint ? 1 : 0);
     
     fclose(file);
     return true;

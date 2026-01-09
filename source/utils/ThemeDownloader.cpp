@@ -89,7 +89,7 @@ void ThemeDownloader::Cancel() {
     }
 }
 
-void ThemeDownloader::DownloadThemeAsync(const std::string& downloadUrl, const std::string& themeName) {
+void ThemeDownloader::DownloadThemeAsync(const std::string& downloadUrl, const std::string& themeName, const std::string& themeId) {
     // 如果已经在下载或有之前的线程,先等待结束
     if (mDownloadThread.joinable()) {
         FileLogger::GetInstance().LogInfo("[DownloadThemeAsync] Waiting for previous thread to finish");
@@ -97,6 +97,9 @@ void ThemeDownloader::DownloadThemeAsync(const std::string& downloadUrl, const s
         mDownloadThread.join();  // 等待线程结束
         FileLogger::GetInstance().LogInfo("[DownloadThemeAsync] Previous thread finished");
     }
+    
+    // 保存 themeId
+    mThemeId = themeId;
     
     // 重置状态
     mState.store(DOWNLOAD_IDLE);
@@ -247,8 +250,18 @@ void ThemeDownloader::DownloadThreadFunc(const std::string& url, const std::stri
     std::string safeThemeName = SanitizeFileName(themeName);
     FileLogger::GetInstance().LogInfo("Sanitized theme name: %s -> %s", themeName.c_str(), safeThemeName.c_str());
     
+    // 构建文件夹名称: "Theme Name ([themeID])"
+    std::string folderName;
+    if (!mThemeId.empty()) {
+        folderName = safeThemeName + " ([" + mThemeId + "])";
+        FileLogger::GetInstance().LogInfo("Using folder name with ID: %s", folderName.c_str());
+    } else {
+        folderName = safeThemeName;
+        FileLogger::GetInstance().LogInfo("No theme ID provided, using theme name only: %s", folderName.c_str());
+    }
+    
     mTempFilePath = cacheDir + "/" + safeThemeName + ".zip";
-    mExtractPath = std::string(THEMES_BASE_PATH) + "/" + safeThemeName; // 使用清理后的名字!
+    mExtractPath = std::string(THEMES_BASE_PATH) + "/" + folderName;
     
     FileLogger::GetInstance().LogInfo("Download paths - ZIP: %s, extract: %s", 
         mTempFilePath.c_str(), mExtractPath.c_str());
@@ -365,6 +378,7 @@ bool ThemeDownloader::DownloadFile(const std::string& url, const std::string& ou
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
     
     // 设置进度回调
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);

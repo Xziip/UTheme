@@ -153,3 +153,59 @@ void Screen::UpdateBgmNotification() {
 void Screen::DrawBgmNotification() {
     sBgmNotification.Draw();
 }
+
+Screen::BackButtonBounds Screen::DrawBackButton(int x, int y, bool hovered) {
+    const int buttonW = 200;
+    const int buttonH = 70;
+    const int iconSize = 40;
+    const int textSize = 36;
+    
+    // 根据悬停状态调整颜色
+    SDL_Color bgColor = Gfx::COLOR_CARD_BG;
+    SDL_Color borderColor = Gfx::COLOR_ACCENT;
+    SDL_Color textColor = Gfx::COLOR_TEXT;
+    
+    if (hovered) {
+        // 悬停时高亮
+        borderColor.a = 255;
+        SDL_Color highlightBg = Gfx::COLOR_ACCENT;
+        highlightBg.a = 60;
+        bgColor = highlightBg;
+        textColor = Gfx::COLOR_WHITE;
+    } else {
+        borderColor.a = 180;
+    }
+    
+    // 绘制按钮背景
+    Gfx::DrawRectRounded(x, y, buttonW, buttonH, 12, bgColor);
+    Gfx::DrawRectRoundedOutline(x, y, buttonW, buttonH, 12, 2, borderColor);
+    
+    // 绘制返回图标 (左箭头)
+    Gfx::DrawIcon(x + 25, y + buttonH/2, iconSize, textColor, 0xf060, Gfx::ALIGN_VERTICAL);
+    
+    // 绘制文字
+    Gfx::Print(x + 70, y + buttonH/2, textSize, textColor, 
+              _("input.back"), Gfx::ALIGN_VERTICAL);
+    
+    return {x, y, buttonW, buttonH};
+}
+
+bool Screen::IsTouchOnBackButton(const Input &input, const BackButtonBounds& bounds) {
+    if (input.data.touched && input.data.validPointer) {
+        // 只在新触摸时触发,避免重复触发
+        if (input.lastData.touched) {
+            return false;
+        }
+        
+        // 计算触摸坐标
+        float scaleX = 1920.0f / 1280.0f;
+        float scaleY = 1080.0f / 720.0f;
+        int touchX = (Gfx::SCREEN_WIDTH / 2) + (int)(input.data.x * scaleX);
+        int touchY = (Gfx::SCREEN_HEIGHT / 2) - (int)(input.data.y * scaleY);
+        
+        // 检测是否在按钮范围内
+        return touchX >= bounds.x && touchX <= bounds.x + bounds.w &&
+               touchY >= bounds.y && touchY <= bounds.y + bounds.h;
+    }
+    return false;
+}

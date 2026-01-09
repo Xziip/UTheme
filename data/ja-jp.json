@@ -11,7 +11,9 @@
     "reboot": "システム再起動",
     "reboot_desc": "Wii U本体を再起動",
     "about": "UThemeについて",
-    "about_desc": "アプリケーション情報と制作者を表示"
+    "about_desc": "アプリケーション情報と制作者を表示",
+    "touch_hint": "ヒント: タッチ操作に対応しています!",
+    "language_switch_hint": "ヒント: 設定で言語を変更できます"
   },
   "download": {
     "title": "テーマダウンロード",
@@ -23,6 +25,7 @@
     "downloading": "テーマをダウンロード中...",
     "download": "ダウンロード",
     "refresh": "更新",
+    "local_install": "ローカルインストール",
     "theme_list": "テーマリスト",
     "complete": "ダウンロード完了！",
     "error": "エラーが発生しました",
@@ -106,6 +109,11 @@
     "logging_desc": "アプリケーションログを記録",
     "verbose_logging": "詳細ログ",
     "verbose_logging_desc": "より詳細なデバッグ情報を記録",
+    "clear_cache": "キャッシュクリア",
+    "clear_cache_desc": "すべてのキャッシュと設定ファイルを削除",
+    "press_to_clear": "Aボタンでクリア",
+    "cache_cleared": "キャッシュをクリアしました",
+    "restarting_app": "アプリを終了しています...",
     "developing": "機能開発中"
   },
   "reboot": {

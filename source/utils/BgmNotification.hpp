@@ -2,9 +2,10 @@
 
 #include "../utils/Animation.hpp"
 #include <string>
+#include <vector>
 #include <SDL2/SDL.h>
 
-// BGM播放通知组件 - 显示当前播放的音乐名称
+// BGM播放通知组件 - 支持多个通知同时显示
 class BgmNotification {
 public:
     BgmNotification();
@@ -18,27 +19,44 @@ public:
     // 显示错误消息
     void ShowError(const std::string& message);
     
+    // 显示提示消息
+    void ShowInfo(const std::string& message);
+    
     // 更新和绘制
     void Update();
     void Draw();
     
     // 状态查询
-    bool IsVisible() const { return mVisible; }
+    bool IsVisible() const { return !mNotifications.empty(); }
     
-    // 立即隐藏
+    // 立即隐藏所有通知
     void Hide();
     
 private:
-    bool mVisible;
-    bool mIsError;
-    std::string mMusicName;
-    std::string mArtist;
-    std::string mMessage;
-    Animation mFadeAnim;
-    Animation mSlideAnim;
-    uint64_t mShowTime;
-    uint64_t mDisplayDuration; // 显示持续时间(毫秒)
+    enum NotificationType {
+        TYPE_MUSIC,
+        TYPE_ERROR,
+        TYPE_INFO
+    };
+    
+    struct Notification {
+        NotificationType type;
+        std::string musicName;
+        std::string artist;
+        std::string message;
+        Animation fadeAnim;
+        Animation slideAnim;
+        uint64_t showTime;
+        uint64_t displayDuration;
+        int yPosition;  // 在屏幕上的Y位置
+    };
+    
+    std::vector<Notification> mNotifications;
+    
+    void AddNotification(NotificationType type, const std::string& text1, const std::string& text2 = "");
+    void DrawNotification(const Notification& notif, int x, int y, float fadeAlpha, float slideOffset);
     
     static const int NOTIFICATION_WIDTH = 500;
     static const int NOTIFICATION_HEIGHT = 90;
+    static const int NOTIFICATION_SPACING = 10;  // 通知之间的间距
 };

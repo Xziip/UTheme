@@ -15,10 +15,10 @@ private:
     enum SettingsItem {
         SETTINGS_LANGUAGE,
         SETTINGS_DOWNLOAD_PATH,
-        SETTINGS_AUTO_INSTALL,
         SETTINGS_BGM_ENABLED,
         SETTINGS_LOGGING_ENABLED,
         SETTINGS_LOGGING_VERBOSE,
+        SETTINGS_CLEAR_CACHE,
         
         SETTINGS_COUNT
     };
@@ -27,6 +27,7 @@ private:
     int mSelectedItem = SETTINGS_LANGUAGE;
     bool mLanguageDialogOpen = false;
     int mSelectedLanguage = 0;
+    int mSelectedColumn = 0;  // 0 = left column, 1 = right column
     int mPrevSelectedItem = SETTINGS_LANGUAGE; // 用于追踪上一个选中项
     Animation mTitleAnim;
     Animation mSelectionAnim; // 选项切换动画
@@ -40,9 +41,28 @@ private:
     // 语言对话框的长按连续选择
     int mDialogHoldFrames = 0;
     
+    // 语言对话框动画
+    int mPrevSelectedLanguage = 0;  // 用于追踪上一个选中的语言
+    int mPrevSelectedColumn = 0;    // 用于追踪上一个选中的列
+    std::vector<float> mLanguageItemAnimProgress;  // 每个语言项的动画进度
+    
+    // 触屏支持
+    struct CardBounds {
+        int x, y, w, h;
+    };
+    std::vector<CardBounds> mLanguageCardBounds;  // 语言卡片边界
+    bool mTouchStartedOnLanguageCard = false;
+    BackButtonBounds mBackButtonBounds = {0, 0, 0, 0};  // 返回按钮边界
+    bool mBackButtonHovered = false;  // 返回按钮悬停状态
+    
+    // 清除缓存退出计时器
+    bool mWaitingForExit = false;
+    uint64_t mExitStartTime = 0;
+    
     void DrawSettingItem(int x, int y, int w, const std::string& title, 
                         const std::string& description, const std::string& value, 
-                        bool selected, float animProgress);
+                        bool selected, float animProgress, uint16_t icon = 0);
     void DrawLanguageDialog();
     bool UpdateLanguageDialog(Input &input);
+    void ClearCache();
 };

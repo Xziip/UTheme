@@ -2,14 +2,25 @@
 #include "Config.hpp"
 #include "Utils.hpp"
 #include "logger.h"
+#include "../Gfx.hpp"
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 
 // 包含嵌入的语言文件
 #include <zh-cn_json.h>
+#include <zh-tw_json.h>
 #include <en-us_json.h>
 #include <ja-jp_json.h>
+#include <ko-kr_json.h>
+#include <fr-fr_json.h>
+#include <de-de_json.h>
+#include <es-es_json.h>
+#include <it-it_json.h>
+#include <ru-ru_json.h>
+#include <pt-br_json.h>
+#include <nl-nl_json.h>
+#include <pl-pl_json.h>
 
 LanguageManager* LanguageManager::mInstance = nullptr;
 
@@ -171,8 +182,18 @@ bool LanguageManager::Initialize() {
     // 设置可用语言
     mAvailableLanguages = {
         {"zh-cn", "简体中文", "zh-cn.json"},
+        {"zh-tw", "繁體中文", "zh-tw.json"},
         {"en-us", "English", "en-us.json"},
-        {"ja-jp", "日本語", "ja-jp.json"}
+        {"ja-jp", "日本語", "ja-jp.json"},
+        {"ko-kr", "한국어", "ko-kr.json"},
+        {"fr-fr", "Français", "fr-fr.json"},
+        {"de-de", "Deutsch", "de-de.json"},
+        {"es-es", "Español", "es-es.json"},
+        {"it-it", "Italiano", "it-it.json"},
+        {"ru-ru", "Русский", "ru-ru.json"},
+        {"pt-br", "Português", "pt-br.json"},
+        {"nl-nl", "Nederlands", "nl-nl.json"},
+        {"pl-pl", "Polski", "pl-pl.json"}
     };
     
     // 加载设置
@@ -200,12 +221,42 @@ bool LanguageManager::LoadLanguage(const std::string& languageCode) {
     if (languageCode == "zh-cn") {
         langData = zh_cn_json;
         langSize = zh_cn_json_size;
+    } else if (languageCode == "zh-tw") {
+        langData = zh_tw_json;
+        langSize = zh_tw_json_size;
     } else if (languageCode == "en-us") {
         langData = en_us_json;
         langSize = en_us_json_size;
     } else if (languageCode == "ja-jp") {
         langData = ja_jp_json;
         langSize = ja_jp_json_size;
+    } else if (languageCode == "ko-kr") {
+        langData = ko_kr_json;
+        langSize = ko_kr_json_size;
+    } else if (languageCode == "fr-fr") {
+        langData = fr_fr_json;
+        langSize = fr_fr_json_size;
+    } else if (languageCode == "de-de") {
+        langData = de_de_json;
+        langSize = de_de_json_size;
+    } else if (languageCode == "es-es") {
+        langData = es_es_json;
+        langSize = es_es_json_size;
+    } else if (languageCode == "it-it") {
+        langData = it_it_json;
+        langSize = it_it_json_size;
+    } else if (languageCode == "ru-ru") {
+        langData = ru_ru_json;
+        langSize = ru_ru_json_size;
+    } else if (languageCode == "pt-br") {
+        langData = pt_br_json;
+        langSize = pt_br_json_size;
+    } else if (languageCode == "nl-nl") {
+        langData = nl_nl_json;
+        langSize = nl_nl_json_size;
+    } else if (languageCode == "pl-pl") {
+        langData = pl_pl_json;
+        langSize = pl_pl_json_size;
     }
     
     if (!langData || langSize == 0) {
@@ -230,8 +281,20 @@ bool LanguageManager::LoadLanguage(const std::string& languageCode) {
     }
     
     mCurrentLanguage = languageCode;
-    DEBUG_FUNCTION_LINE("Successfully loaded language: %s (%d texts)", 
-                       languageCode.c_str(), (int)mTexts.size());
+    
+    // Determine if language needs CJK font or Latin font
+    // CJK languages: zh-cn, zh-tw, ja-jp, ko-kr
+    // All others use Latin/Cyrillic font (Noto Sans)
+    bool needsCJKFont = (languageCode == "zh-cn" || 
+                         languageCode == "zh-tw" || 
+                         languageCode == "ja-jp" || 
+                         languageCode == "ko-kr");
+    
+    Gfx::SetUseLatinFont(!needsCJKFont);
+    
+    DEBUG_FUNCTION_LINE("Successfully loaded language: %s (%d texts), using %s font", 
+                       languageCode.c_str(), (int)mTexts.size(),
+                       needsCJKFont ? "CJK" : "Latin");
     
     // 测试几个关键键是否存在
     DEBUG_FUNCTION_LINE("Test key 'app_name': %s", GetText("app_name").c_str());

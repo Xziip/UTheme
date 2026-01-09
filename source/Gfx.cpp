@@ -9,6 +9,7 @@
 
 #include <fa-solid-900_ttf.h>
 #include <font_ttf.h>
+#include <NotoSans-Regular_ttf.h>
 #include <ter-u32b_bdf.h>
 
 namespace {
@@ -21,9 +22,17 @@ namespace {
 
     uint32_t fontSize = 0;
     
+    void *latinFontData = nullptr;  // Noto Sans for Latin/Cyrillic languages
+    
+    uint32_t latinFontSize = 0;
+    
+    bool useLatinFont = false;  // Whether to use Latin font for current language
+    
     float globalAlpha = 1.0f;  // Global alpha multiplier
 
     std::map<int, FC_Font *> fontMap;
+    
+    std::map<int, FC_Font *> latinFontMap;  // Separate cache for Latin fonts
 
     FC_Font *monospaceFont = nullptr;
 
@@ -32,8 +41,11 @@ namespace {
     std::map<Uint16, SDL_Texture *> iconCache;
 
     FC_Font *GetFontForSize(int size) {
-        if (fontMap.contains(size)) {
-            return fontMap[size];
+        // Choose appropriate font cache based on current font setting
+        auto &cache = useLatinFont ? latinFontMap : fontMap;
+        
+        if (cache.contains(size)) {
+            return cache[size];
         }
 
         FC_Font *font = FC_CreateFont();
@@ -41,12 +53,16 @@ namespace {
             return font;
         }
 
-        if (!FC_LoadFont_RW(font, renderer, SDL_RWFromMem(fontData, fontSize), 1, size, Gfx::COLOR_BLACK, TTF_STYLE_NORMAL)) {
+        // Choose font based on language
+        void *selectedFontData = useLatinFont ? latinFontData : fontData;
+        uint32_t selectedFontSize = useLatinFont ? latinFontSize : fontSize;
+
+        if (!FC_LoadFont_RW(font, renderer, SDL_RWFromMem(selectedFontData, selectedFontSize), 1, size, Gfx::COLOR_BLACK, TTF_STYLE_NORMAL)) {
             FC_FreeFont(font);
             return nullptr;
         }
 
-        fontMap.insert({size, font});
+        cache.insert({size, font});
         return font;
     }
 
@@ -95,6 +111,9 @@ namespace Gfx {
 
         fontData = const_cast<uint8_t *>(font_ttf);
         fontSize = static_cast<uint32_t>(font_ttf_size);
+        
+        latinFontData = const_cast<uint8_t *>(NotoSans_Regular_ttf);
+        latinFontSize = static_cast<uint32_t>(NotoSans_Regular_ttf_size);
 
         TTF_Init();
 
@@ -121,6 +140,10 @@ namespace Gfx {
         for (const auto &[key, value] : fontMap) {
             FC_FreeFont(value);
         }
+        
+        for (const auto &[key, value] : latinFontMap) {
+            FC_FreeFont(value);
+        }
 
         for (const auto &[key, value] : iconCache) {
             SDL_DestroyTexture(value);
@@ -132,6 +155,11 @@ namespace Gfx {
         SDL_DestroyRenderer(renderer);
         SDL_DestroyWindow(window);
         SDL_Quit();
+    }
+    
+    void SetUseLatinFont(bool useLatin) {
+        // Simply switch the flag - caches are maintained separately
+        useLatinFont = useLatin;
     }
 
     void Clear(SDL_Color color) {

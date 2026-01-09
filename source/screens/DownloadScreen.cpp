@@ -1,5 +1,6 @@
 #include "DownloadScreen.hpp"
 #include "ThemeDetailScreen.hpp"
+#include "LocalInstallScreen.hpp"
 #include "Gfx.hpp"
 #include "../utils/LanguageManager.hpp"
 #include "../utils/ImageLoader.hpp"
@@ -255,14 +256,15 @@ void DownloadScreen::Draw() {
     
     // 底部栏 - 根据状态显示不同提示
     if (mState == STATE_SHOW_THEMES) {
-        std::string middleHint = std::string("\ue000 ") + _("download.download") + " | \ue002 " + _("download.refresh");
+        std::string leftHint = std::string("\ue07d ") + _("input.select");
+        std::string middleHint = std::string("\ue000 ") + _("download.download") + " | \ue002 " + _("download.local_install") + " | \ue003 " + _("download.refresh");
         
         // 如果检测到更新,添加提示
         if (mThemeManager->HasUpdates()) {
             middleHint += " | " + std::string(_("download.update_available"));
         }
         
-        DrawBottomBar((std::string("\ue07d ") + _("input.select")).c_str(), 
+        DrawBottomBar(leftHint.c_str(), 
                      middleHint.c_str(), 
                      (std::string("\ue001 ") + _("input.back")).c_str());
     } else {
@@ -326,10 +328,61 @@ bool DownloadScreen::Update(Input &input) {
             return false;
         }
         
-        // X键刷新
-        if (input.data.buttons_d & Input::BUTTON_X) {
+        // Y键刷新
+        if (input.data.buttons_d & Input::BUTTON_Y) {
             mState = STATE_LOADING;
             mThemeManager->ForceRefresh();
+            return true;
+        }
+        
+        // X键进入本地安装屏幕
+        if (input.data.buttons_d & Input::BUTTON_X) {
+            FileLogger::GetInstance().LogInfo("Opening LocalInstallScreen from DownloadScreen");
+            
+            // 创建本地安装屏幕
+            LocalInstallScreen* installScreen = new LocalInstallScreen();
+            
+            // 创建输入对象
+            CombinedInput installBaseInput;
+            VPadInput installVpadInput;
+            WPADInput installWpadInputs[4] = {WPAD_CHAN_0, WPAD_CHAN_1, WPAD_CHAN_2, WPAD_CHAN_3};
+            
+            // 进入本地安装屏幕循环
+            while (true) {
+                installBaseInput.reset();
+                if (installVpadInput.update(1280, 720)) {
+                    installBaseInput.combine(installVpadInput);
+                }
+                for (auto &wpadInput : installWpadInputs) {
+                    if (wpadInput.update(1280, 720)) {
+                        installBaseInput.combine(wpadInput);
+                    }
+                }
+                installBaseInput.process();
+                
+                if (!installScreen->Update(installBaseInput)) {
+                    break; // 返回下载列表
+                }
+                
+                installScreen->Draw();
+                Gfx::Render();
+            }
+            
+            // 清理本地安装屏幕
+            delete installScreen;
+            
+            FileLogger::GetInstance().LogInfo("Returned from LocalInstallScreen");
+            
+            // 清理B键状态，避免立即返回到MenuScreen
+            input.data.buttons_d &= ~Input::BUTTON_B;
+            input.data.buttons_h &= ~Input::BUTTON_B;
+            
+            // 重新扫描已安装主题列表
+            ScanInstalledThemes();
+            
+            // 设置返回时间，启动输入冷却
+            mReturnFromDetailFrame = mFrameCount;
+            
             return true;
         }
         

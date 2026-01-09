@@ -38,9 +38,18 @@ public:
             mIsAnimating = false;
         } else {
             float progress = elapsed / mDuration;
-            // Ease out cubic
-            progress = 1 - pow(1 - progress, 3);
-            mCurrentValue = mStartValue + (mTargetValue - mStartValue) * progress;
+            // 确保 progress 不会超过 1.0
+            if (progress > 1.0f) progress = 1.0f;
+            
+            // Ease out cubic - 更平滑的缓动
+            float eased = 1.0f - pow(1.0f - progress, 3.0f);
+            mCurrentValue = mStartValue + (mTargetValue - mStartValue) * eased;
+            
+            // 如果非常接近目标值(差距小于0.001),直接完成动画
+            if (fabs(mCurrentValue - mTargetValue) < 0.001f) {
+                mCurrentValue = mTargetValue;
+                mIsAnimating = false;
+            }
         }
     }
 

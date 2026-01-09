@@ -11,7 +11,9 @@
     "reboot": "重启系统",
     "reboot_desc": "重新启动 Wii U 主机",
     "about": "关于 UTheme",
-    "about_desc": "查看应用信息和制作人员"
+    "about_desc": "查看应用信息和制作人员",
+    "touch_hint": "提示: 支持触摸屏操作!",
+    "language_switch_hint": "提示: 可在设置中切换语言"
   },
   "download": {
     "title": "下载主题",
@@ -23,6 +25,7 @@
     "downloading": "正在下载主题...",
     "download": "下载",
     "refresh": "刷新",
+    "local_install": "本地安装",
     "theme_list": "主题列表",
     "complete": "下载完成!",
     "error": "发生错误",
@@ -106,6 +109,11 @@
     "logging_desc": "记录应用运行日志",
     "verbose_logging": "详细日志",
     "verbose_logging_desc": "记录更详细的调试信息",
+    "clear_cache": "清除缓存",
+    "clear_cache_desc": "删除所有缓存数据和配置文件",
+    "press_to_clear": "按 A 清除",
+    "cache_cleared": "缓存已清除",
+    "restarting_app": "正在退出程序...",
     "developing": "功能开发中"
   },
   "reboot": {

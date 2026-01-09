@@ -265,6 +265,17 @@ bool ThemeManager::ParseThemezerResponse(const std::string& jsonData) {
             // 下载 URL
             if (themeJson.has("downloadUrl") && themeJson["downloadUrl"].isString()) {
                 theme.downloadUrl = themeJson["downloadUrl"].asString();
+                
+                // 从 downloadUrl 中提取短ID
+                // 格式: https://api.themezer.net/wiiu/themes/123/download
+                size_t themesPos = theme.downloadUrl.find("/wiiu/themes/");
+                if (themesPos != std::string::npos) {
+                    size_t idStart = themesPos + 13; // 跳过 "/wiiu/themes/"
+                    size_t idEnd = theme.downloadUrl.find("/", idStart);
+                    if (idEnd != std::string::npos) {
+                        theme.shortId = theme.downloadUrl.substr(idStart, idEnd - idStart);
+                    }
+                }
             }
             
             // 标签
@@ -436,10 +447,11 @@ void ThemeManager::DownloadTheme(const Theme& theme) {
         }
     });
     
-    // 启动异步下载
-    mDownloader->DownloadThemeAsync(theme.downloadUrl, theme.name);
+    // 启动异步下载 - 使用shortId（如"123"）而不是uuid
+    std::string themeId = theme.shortId.empty() ? theme.id : theme.shortId;
+    mDownloader->DownloadThemeAsync(theme.downloadUrl, theme.name, themeId);
     
-    FileLogger::GetInstance().LogInfo("Async download started");
+    FileLogger::GetInstance().LogInfo("Async download started with theme ID: %s (short: %s)", theme.id.c_str(), theme.shortId.c_str());
 }
 
 float ThemeManager::GetDownloadProgress() const {

@@ -740,7 +740,7 @@ bool LocalInstallScreen::Update(Input &input) {
             const int dialogY = (Gfx::SCREEN_HEIGHT - dialogH) / 2;
             
             // 复选框区域 - 计算与绘制时完全一致
-            const int optionY = dialogY + 210;
+            const int optionY = dialogY + 340;  // 与绘制代码一致
             const int checkboxSize = 36;
             const int checkboxRadius = 8;
             
@@ -776,7 +776,7 @@ bool LocalInstallScreen::Update(Input &input) {
             const int btnW = 400;
             const int btnH = 70;
             const int btnX = dialogX + (dialogW - btnW) / 2;
-            const int btnY = dialogY + 310;
+            const int btnY = dialogY + 400;  // 与绘制代码一致
             
             if (IsTouchInRect(touchX, touchY, btnX, btnY, btnW, btnH)) {
                 if (!mTouchStarted) {

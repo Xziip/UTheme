@@ -11,7 +11,9 @@
     "reboot": "Reboot System",
     "reboot_desc": "Restart Wii U console",
     "about": "About UTheme",
-    "about_desc": "View application info and credits"
+    "about_desc": "View application info and credits",
+    "touch_hint": "Tip: Touch screen is supported!",
+    "language_switch_hint": "Tip: You can change language in Settings"
   },
   "download": {
     "title": "Download Themes",
@@ -23,6 +25,7 @@
     "downloading": "Downloading theme...",
     "download": "Download",
     "refresh": "Refresh",
+    "local_install": "Local Install",
     "theme_list": "Theme List",
     "complete": "Download Complete!",
     "error": "Error Occurred",
@@ -106,6 +109,11 @@
     "logging_desc": "Record application logs",
     "verbose_logging": "Verbose Logging",
     "verbose_logging_desc": "Record more detailed debug information",
+    "clear_cache": "Clear Cache",
+    "clear_cache_desc": "Delete all cached data and config files",
+    "press_to_clear": "Press A to Clear",
+    "cache_cleared": "Cache cleared",
+    "restarting_app": "Exiting application...",
     "developing": "Feature in development"
   },
   "reboot": {

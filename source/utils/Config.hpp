@@ -31,6 +31,14 @@ public:
     std::string GetBgmUrl() const { return mBgmUrl; }
     void SetBgmUrl(const std::string& url);
     
+    // 触摸提示设置
+    bool HasShownTouchHint() const { return mHasShownTouchHint; }
+    void SetTouchHintShown(bool shown);
+    
+    // 语言切换提示设置
+    bool HasShownLanguageSwitchHint() const { return mHasShownLanguageSwitchHint; }
+    void SetLanguageSwitchHintShown(bool shown);
+    
     // 加载/保存配置
     bool Load();
     bool Save();
@@ -48,5 +56,7 @@ private:
     bool mAutoInstall;              // 下载后自动安装
     bool mBgmEnabled;               // 背景音乐开关
     std::string mBgmUrl;            // BGM下载地址
+    bool mHasShownTouchHint;        // 是否已显示触摸提示
+    bool mHasShownLanguageSwitchHint; // 是否已显示语言切换提示
     std::string mConfigPath;
 };

@@ -9,6 +9,7 @@
 #include "utils/logger.h"
 #include "utils/FileLogger.hpp"
 #include "utils/LanguageManager.hpp"
+#include "utils/Config.hpp"
 #include <coreinit/time.h>
 
 MenuScreen::MenuScreen()
@@ -30,6 +31,18 @@ MenuScreen::MenuScreen()
     mSelectorAnimation.SetImmediate(mCurrentSelectorY);
     mTitleAnimation.SetImmediate(0.0f);
     mTitleAnimation.SetTarget(1.0f, 800);
+    
+    // 首次进入时显示触摸提示
+    if (!Config::GetInstance().HasShownTouchHint()) {
+        Config::GetInstance().SetTouchHintShown(true);
+        Screen::GetBgmNotification().ShowInfo(_("menu.touch_hint"));
+    }
+    
+    // 首次语言选择后显示语言切换提示
+    if (!Config::GetInstance().HasShownLanguageSwitchHint()) {
+        Config::GetInstance().SetLanguageSwitchHintShown(true);
+        Screen::GetBgmNotification().ShowInfo(_("menu.language_switch_hint"));
+    }
 }
 
 MenuScreen::~MenuScreen() = default;

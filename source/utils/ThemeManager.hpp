@@ -25,6 +25,7 @@ struct ThemeImage {
 // 主题数据结构
 struct Theme {
     std::string id;
+    std::string shortId;  // 短ID，从downloadUrl中提取
     std::string name;
     std::string author;
     std::string description;

@@ -127,8 +127,8 @@ void ThemePatcher::ScanForBPSFiles(const std::string& basePath, const std::strin
         struct stat st;
         if (stat(fullPath.c_str(), &st) == 0) {
             if (S_ISDIR(st.st_mode)) {
-                // 跳过 patched 目录
-                if (name != "patched") {
+                // 跳过 content 目录
+                if (name != "content") {
                     // 递归扫描子目录
                     ScanForBPSFiles(basePath, fullPath, bpsFiles);
                 }
@@ -323,15 +323,15 @@ bool ThemePatcher::InstallTheme(const std::string& themePath,
     }
     
     // themePath 现在是解压后的文件夹路径：wiiu/themes/主题名/
-    // 补丁文件在这个文件夹里，修补后的文件输出到 patched/ 子目录
-    std::string patchedPath = themePath + "/patched";
+    // 补丁文件在这个文件夹里，修补后的文件输出到 content/ 子目录
+    std::string contentPath = themePath + "/content";
     
     FileLogger::GetInstance().LogInfo("Theme folder: %s", themePath.c_str());
-    FileLogger::GetInstance().LogInfo("Patched output: %s", patchedPath.c_str());
+    FileLogger::GetInstance().LogInfo("Content output: %s", contentPath.c_str());
     
-    // 创建 patched 目录
-    if (!CreateDirectoryRecursive(patchedPath)) {
-        FileLogger::GetInstance().LogError("Failed to create patched directory");
+    // 创建 content 目录
+    if (!CreateDirectoryRecursive(contentPath)) {
+        FileLogger::GetInstance().LogError("Failed to create content directory");
         return false;
     }
     
@@ -366,7 +366,8 @@ bool ThemePatcher::InstallTheme(const std::string& themePath,
         // BPS 文件名就是目标文件名（不含扩展名）
         // 例如: Men.bps -> 修补 Common/Package/Men.pack
         //       Men2.bps -> 修补 Common/Package/Men2.pack
-        //       cafe_barista_men.bps -> 修补 Common/Sound/Men/cafe_barista_men (音频文件)
+        //       cafe_barista_men.bps -> 修补 Common/Sound/Men/cafe_barista_men.bfsar (音频文件)
+        //       AllMessage_UsEn.bps -> 修补 UsEn/Message/AllMessage.szs (语言文件)
         // 先获取纯文件名（去掉路径和 .bps 后缀）
         std::string bpsFileName = bpsRelPath;
         size_t lastSlash = bpsFileName.find_last_of('/');
@@ -377,21 +378,55 @@ bool ThemePatcher::InstallTheme(const std::string& themePath,
         // 移除 .bps 后缀得到目标文件名（不含扩展名）
         std::string targetBaseName = bpsFileName.substr(0, bpsFileName.length() - 4);
         
-        // 判断是否是音频文件(cafe_barista_men 等)
+        // 判断文件类型
         bool isAudioFile = (targetBaseName.find("cafe_barista") != std::string::npos);
+        bool isMessageFile = (targetBaseName.find("AllMessage_") == 0);
         
         std::string originalFilePath;
         std::string originalFileName;
+        std::string outputSubPath; // 用于保存到content目录的子路径
         
         if (isAudioFile) {
             // 音频文件在 Common/Sound/Men 目录,扩展名为 .bfsar
             originalFileName = targetBaseName + ".bfsar";
             originalFilePath = menuContentPath + "Common/Sound/Men/" + originalFileName;
+            outputSubPath = "Common/Sound/Men/" + originalFileName;
             FileLogger::GetInstance().LogInfo("Audio file detected: %s", originalFileName.c_str());
+        } else if (isMessageFile) {
+            // 语言文件格式: AllMessage_UsEn.bps -> UsEnglish/Message/AllMessage.szs
+            // 提取语言代码 (UsEn, EuDe, etc.) 并映射到完整的语言文件夹名
+            std::string langCode = targetBaseName.substr(11); // 跳过 "AllMessage_"
+            
+            // 语言代码映射表
+            std::string langFolder;
+            if (langCode == "JpJa") langFolder = "JpJapanese";
+            else if (langCode == "UsEn") langFolder = "UsEnglish";
+            else if (langCode == "UsEs") langFolder = "UsSpanish";
+            else if (langCode == "UsFr") langFolder = "UsFrench";
+            else if (langCode == "UsPt") langFolder = "UsPortuguese";
+            else if (langCode == "EuEn") langFolder = "EuEnglish";
+            else if (langCode == "EuDe") langFolder = "EuGerman";
+            else if (langCode == "EuEs") langFolder = "EuSpanish";
+            else if (langCode == "EuFr") langFolder = "EuFrench";
+            else if (langCode == "EuIt") langFolder = "EuItalian";
+            else if (langCode == "EuNl") langFolder = "EuDutch";
+            else if (langCode == "EuPt") langFolder = "EuPortuguese";
+            else if (langCode == "EuRu") langFolder = "EuRussian";
+            else {
+                FileLogger::GetInstance().LogError("Unknown language code: %s", langCode.c_str());
+                continue;
+            }
+            
+            originalFileName = "AllMessage.szs";
+            originalFilePath = menuContentPath + langFolder + "/Message/" + originalFileName;
+            outputSubPath = langFolder + "/Message/" + originalFileName;
+            FileLogger::GetInstance().LogInfo("Message file detected: %s (language: %s -> %s)", 
+                originalFileName.c_str(), langCode.c_str(), langFolder.c_str());
         } else {
             // 系统菜单界面文件都是 .pack 格式,在 Common/Package/ 下
             originalFileName = targetBaseName + ".pack";
             originalFilePath = menuContentPath + "Common/Package/" + originalFileName;
+            outputSubPath = "Common/Package/" + originalFileName;
         }
         
         FileLogger::GetInstance().LogInfo("Patching [%zu/%zu]: %s", i + 1, bpsFiles.size(), originalFileName.c_str());
@@ -446,8 +481,8 @@ bool ThemePatcher::InstallTheme(const std::string& themePath,
         patchData.clear();
         patchData.shrink_to_fit();
         
-        // 保存修补后的文件到 patched/ 子目录（保持相同的目录结构）
-        std::string patchedFilePath = patchedPath + "/Common/Package/" + originalFileName;
+        // 保存修补后的文件到 content/ 子目录（使用计算出的子路径）
+        std::string patchedFilePath = contentPath + "/" + outputSubPath;
         
         // 创建父目录
         size_t slashPos = patchedFilePath.find_last_of('/');

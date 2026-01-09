@@ -23,7 +23,7 @@ public:
     ~ThemeDownloader();
     
     // 下载并安装主题（异步）
-    void DownloadThemeAsync(const std::string& downloadUrl, const std::string& themeName);
+    void DownloadThemeAsync(const std::string& downloadUrl, const std::string& themeName, const std::string& themeId = "");
     
     // 状态查询
     DownloadState GetState() const { return mState; }
@@ -48,6 +48,7 @@ private:
     
     std::string mTempFilePath;
     std::string mExtractPath;
+    std::string mThemeId;
     
     std::thread mDownloadThread;
     

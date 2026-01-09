@@ -98,6 +98,17 @@ protected:
 
     static int DrawList(int x, int y, int w, const ScreenList &items);
     
+    // 返回按钮相关
+    struct BackButtonBounds {
+        int x, y, w, h;
+    };
+    
+    // 绘制返回按钮并返回边界信息
+    static BackButtonBounds DrawBackButton(int x, int y, bool hovered = false);
+    
+    // 检测触摸是否点击了返回按钮
+    static bool IsTouchOnBackButton(const Input &input, const BackButtonBounds& bounds);
+    
     // 全局触摸调试信息绘制 (所有子类都可以调用)
     // 实现在 Screen.cpp 中以避免循环依赖
     static void DrawTouchDebugInfo(const Input &input, bool enabled = true);
