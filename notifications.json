@@ -1,0 +1,24 @@
+{
+  "messages": [
+    {
+      "id": "001",
+      "type": "info",
+      "text": "hello world"
+    },
+    {
+      "id": "002",
+      "type": "update",
+      "text": "testing notifications"
+    },
+    {
+      "id": "003",
+      "type": "warning",
+      "text": "中文测试"
+    },
+    {
+      "id": "004",
+      "type": "warning",
+      "text": "Special characters: !@#$%^&*()_+-=[]{}|;':\",.<>/?`~"
+    }
+  ]
+}
