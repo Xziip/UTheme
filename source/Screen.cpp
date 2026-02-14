@@ -3,6 +3,7 @@
 #include "common.h"
 #include "utils/LanguageManager.hpp"
 #include "utils/BgmNotification.hpp"
+#include "utils/FileLogger.hpp"
 #include "screens/MainScreen.hpp"
 
 // 全局BGM通知实例
@@ -154,58 +155,116 @@ void Screen::DrawBgmNotification() {
     sBgmNotification.Draw();
 }
 
-Screen::BackButtonBounds Screen::DrawBackButton(int x, int y, bool hovered) {
-    const int buttonW = 200;
-    const int buttonH = 70;
-    const int iconSize = 40;
-    const int textSize = 36;
+// 静态变量初始化
+int Screen::sBackButtonX = 1820;
+int Screen::sBackButtonY = 100;
+bool Screen::sBackButtonDragging = false;bool Screen::sButtonPressed = false;int Screen::sDragStartX = 0;
+int Screen::sDragStartY = 0;
+int Screen::sDragOffsetX = 0;
+int Screen::sDragOffsetY = 0;
+int Screen::sHoldFrames = 0;
+
+void Screen::DrawBackButton() {
+    const int size = 70;  // 圆形按钮直径
+    const int radius = size / 2;  // 圆角半径等于直径的一半形成圆形
+    const int iconSize = 36;
     
-    // 根据悬停状态调整颜色
+    // 根据拖动状态调整颜色
     SDL_Color bgColor = Gfx::COLOR_CARD_BG;
     SDL_Color borderColor = Gfx::COLOR_ACCENT;
-    SDL_Color textColor = Gfx::COLOR_TEXT;
+    SDL_Color iconColor = Gfx::COLOR_TEXT;
     
-    if (hovered) {
-        // 悬停时高亮
+    if (sBackButtonDragging) {
+        // 拖动时高亮
         borderColor.a = 255;
         SDL_Color highlightBg = Gfx::COLOR_ACCENT;
-        highlightBg.a = 60;
+        highlightBg.a = 80;
         bgColor = highlightBg;
-        textColor = Gfx::COLOR_WHITE;
+        iconColor = Gfx::COLOR_WHITE;
     } else {
         borderColor.a = 180;
     }
     
-    // 绘制按钮背景
-    Gfx::DrawRectRounded(x, y, buttonW, buttonH, 12, bgColor);
-    Gfx::DrawRectRoundedOutline(x, y, buttonW, buttonH, 12, 2, borderColor);
+    // 计算左上角坐标（从中心点）
+    int x = sBackButtonX - radius;
+    int y = sBackButtonY - radius;
+    
+    // 绘制圆形背景（使用圆角矩形）
+    Gfx::DrawRectRounded(x, y, size, size, radius, bgColor);
+    Gfx::DrawRectRoundedOutline(x, y, size, size, radius, 2, borderColor);
     
     // 绘制返回图标 (左箭头)
-    Gfx::DrawIcon(x + 25, y + buttonH/2, iconSize, textColor, 0xf060, Gfx::ALIGN_VERTICAL);
-    
-    // 绘制文字
-    Gfx::Print(x + 70, y + buttonH/2, textSize, textColor, 
-              _("input.back"), Gfx::ALIGN_VERTICAL);
-    
-    return {x, y, buttonW, buttonH};
+    Gfx::DrawIcon(sBackButtonX, sBackButtonY, iconSize, iconColor, 0xf060, Gfx::ALIGN_CENTER | Gfx::ALIGN_VERTICAL);
 }
 
-bool Screen::IsTouchOnBackButton(const Input &input, const BackButtonBounds& bounds) {
+bool Screen::UpdateBackButton(const Input &input) {
+    const int radius = 35;
+    const int holdThreshold = 15;  // 长按15帧(约0.25秒)后开始拖动
+    
     if (input.data.touched && input.data.validPointer) {
-        // 只在新触摸时触发,避免重复触发
-        if (input.lastData.touched) {
-            return false;
-        }
-        
         // 计算触摸坐标
-        float scaleX = 1920.0f / 1280.0f;
-        float scaleY = 1080.0f / 720.0f;
-        int touchX = (Gfx::SCREEN_WIDTH / 2) + (int)(input.data.x * scaleX);
-        int touchY = (Gfx::SCREEN_HEIGHT / 2) - (int)(input.data.y * scaleY);
+        int touchX = (int)((input.data.x * 1920.0f / 1280.0f) + 960);
+        int touchY = (int)(540 - (input.data.y * 1080.0f / 720.0f));
         
-        // 检测是否在按钮范围内
-        return touchX >= bounds.x && touchX <= bounds.x + bounds.w &&
-               touchY >= bounds.y && touchY <= bounds.y + bounds.h;
+        // 计算到按钮中心的距离
+        int dx = touchX - sBackButtonX;
+        int dy = touchY - sBackButtonY;
+        int distSq = dx * dx + dy * dy;
+        bool inButton = distSq <= (radius * radius);
+        
+        if (!input.lastData.touched) {
+            // 新触摸
+            if (inButton) {
+                sButtonPressed = true;  // 标记按钮被按下
+                sHoldFrames = 1;
+                sDragStartX = touchX;
+                sDragStartY = touchY;
+                sDragOffsetX = touchX - sBackButtonX;
+                sDragOffsetY = touchY - sBackButtonY;
+            } else {
+                sButtonPressed = false;
+                sHoldFrames = 0;
+            }
+        } else {
+            // 持续触摸
+            if (sButtonPressed) {
+                sHoldFrames++;
+                
+                // 长按后开始拖动
+                if (sHoldFrames >= holdThreshold) {
+                    sBackButtonDragging = true;
+                    sBackButtonX = touchX - sDragOffsetX;
+                    sBackButtonY = touchY - sDragOffsetY;
+                    
+                    // 限制在屏幕范围内
+                    if (sBackButtonX < radius) sBackButtonX = radius;
+                    if (sBackButtonX > (int)Gfx::SCREEN_WIDTH - radius) sBackButtonX = (int)Gfx::SCREEN_WIDTH - radius;
+                    if (sBackButtonY < radius) sBackButtonY = radius;
+                    if (sBackButtonY > (int)Gfx::SCREEN_HEIGHT - radius) sBackButtonY = (int)Gfx::SCREEN_HEIGHT - radius;
+                }
+            }
+        }
+    } else {
+        // 触摸结束
+        if (sButtonPressed) {
+            if (sBackButtonDragging) {
+                // 拖动结束，不触发返回
+                sBackButtonDragging = false;
+                sButtonPressed = false;
+                sHoldFrames = 0;
+                return false;
+            } else {
+                // 没有进入拖动状态，触发返回（不管按了多久）
+                sButtonPressed = false;
+                sHoldFrames = 0;
+                return true;
+            }
+        }
+        // 重置状态
+        sButtonPressed = false;
+        sBackButtonDragging = false;
+        sHoldFrames = 0;
     }
+    
     return false;
 }

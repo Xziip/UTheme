@@ -101,6 +101,7 @@ void SettingsScreen::Draw() {
     int currentY = listY;
     
     // 语言设置 - 地球图标
+    mSettingItemBounds[SETTINGS_LANGUAGE] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.language"), 
                    _("settings.language_desc"), 
@@ -111,6 +112,7 @@ void SettingsScreen::Draw() {
     currentY += itemHeight + itemSpacing;
     
     // 下载路径设置 - 文件夹图标
+    mSettingItemBounds[SETTINGS_DOWNLOAD_PATH] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.download_path"), 
                    _("settings.download_path_desc"), 
@@ -121,6 +123,7 @@ void SettingsScreen::Draw() {
     currentY += itemHeight + itemSpacing;
     
     // 背景音乐设置 - 音乐图标
+    mSettingItemBounds[SETTINGS_BGM_ENABLED] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.bgm_enabled"), 
                    _("settings.bgm_enabled_desc"), 
@@ -131,6 +134,7 @@ void SettingsScreen::Draw() {
     currentY += itemHeight + itemSpacing;
     
     // 日志启用设置 - 文件图标
+    mSettingItemBounds[SETTINGS_LOGGING_ENABLED] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.logging"), 
                    _("settings.logging_desc"), 
@@ -141,6 +145,7 @@ void SettingsScreen::Draw() {
     currentY += itemHeight + itemSpacing;
     
     // 详细日志设置 - 列表图标
+    mSettingItemBounds[SETTINGS_LOGGING_VERBOSE] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.verbose_logging"), 
                    _("settings.verbose_logging_desc"), 
@@ -151,6 +156,7 @@ void SettingsScreen::Draw() {
     currentY += itemHeight + itemSpacing;
     
     // 清除缓存设置 - 垃圾桶图标
+    mSettingItemBounds[SETTINGS_CLEAR_CACHE] = {listX, currentY, listW, itemHeight};
     DrawSettingItem(listX, currentY, listW, 
                    _("settings.clear_cache"), 
                    _("settings.clear_cache_desc"), 
@@ -159,10 +165,10 @@ void SettingsScreen::Draw() {
                    mItemAnimProgress[SETTINGS_CLEAR_CACHE],
                    0xf1f8);  // fa-trash
     
-    // 绘制返回按钮 (右上角)
-    mBackButtonBounds = DrawBackButton(Gfx::SCREEN_WIDTH - 240, 140, mBackButtonHovered);
-    
     DrawBottomBar(nullptr, (std::string("\ue044 ") + _("input.exit")).c_str(), (std::string("\ue001 ") + _("input.back")).c_str());
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 void SettingsScreen::DrawSettingItem(int x, int y, int w, const std::string& title, 
@@ -411,6 +417,11 @@ void SettingsScreen::DrawLanguageDialog() {
 }
 
 bool SettingsScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     // 检查是否正在等待退出
     if (mWaitingForExit) {
         uint64_t currentTime = OSGetSystemTime();
@@ -430,24 +441,60 @@ bool SettingsScreen::Update(Input &input) {
         return UpdateLanguageDialog(input);
     }
     
-    // 检测返回按钮触摸
-    if (IsTouchOnBackButton(input, mBackButtonBounds)) {
-        return false;  // 返回上一级
-    }
-    
-    // 检测返回按钮悬停状态(用于高亮显示)
-    if (input.data.touched && input.data.validPointer) {
-        float scaleX = 1920.0f / 1280.0f;
-        float scaleY = 1080.0f / 720.0f;
-        int touchX = (Gfx::SCREEN_WIDTH / 2) + (int)(input.data.x * scaleX);
-        int touchY = (Gfx::SCREEN_HEIGHT / 2) - (int)(input.data.y * scaleY);
+    // 检测触摸设置项
+    if (input.data.touched && input.data.validPointer && !input.lastData.touched) {
+        // 转换触摸坐标 (DRC: 854x480 -> 1920x1080)
+        int touchX = (int)((input.data.x * 1920.0f / 1280.0f) + 960);
+        int touchY = (int)(540 - (input.data.y * 1080.0f / 720.0f));
         
-        mBackButtonHovered = (touchX >= mBackButtonBounds.x && 
-                             touchX <= mBackButtonBounds.x + mBackButtonBounds.w &&
-                             touchY >= mBackButtonBounds.y && 
-                             touchY <= mBackButtonBounds.y + mBackButtonBounds.h);
-    } else {
-        mBackButtonHovered = false;
+        // 检查是否点击了设置项
+        for (int i = 0; i < SETTINGS_COUNT; i++) {
+            const auto& bounds = mSettingItemBounds[i];
+            if (IsTouchInRect(touchX, touchY, bounds.x, bounds.y, bounds.w, bounds.h)) {
+                // 如果点击已选中的项，执行操作
+                if (i == mSelectedItem) {
+                    // 执行该设置项的操作
+                    switch (i) {
+                        case SETTINGS_LANGUAGE:
+                            mLanguageDialogOpen = true;
+                            break;
+                        case SETTINGS_DOWNLOAD_PATH:
+                            // TODO: 打开路径设置对话框
+                            break;
+                        case SETTINGS_BGM_ENABLED:
+                            {
+                                bool newState = !Config::GetInstance().IsBgmEnabled();
+                                Config::GetInstance().SetBgmEnabled(newState);
+                            }
+                            break;
+                        case SETTINGS_LOGGING_ENABLED:
+                            {
+                                bool newState = !Config::GetInstance().IsLoggingEnabled();
+                                Config::GetInstance().SetLoggingEnabled(newState);
+                                FileLogger::GetInstance().SetEnabled(newState);
+                                if (newState) {
+                                    FileLogger::GetInstance().StartLog();
+                                }
+                            }
+                            break;
+                        case SETTINGS_LOGGING_VERBOSE:
+                            {
+                                bool newState = !Config::GetInstance().IsVerboseLogging();
+                                Config::GetInstance().SetVerboseLogging(newState);
+                                FileLogger::GetInstance().SetVerbose(newState);
+                            }
+                            break;
+                        case SETTINGS_CLEAR_CACHE:
+                            ClearCache();
+                            break;
+                    }
+                } else {
+                    // 否则选中该项
+                    mSelectedItem = i;
+                }
+                return true;
+            }
+        }
     }
     
     // 按B键返回
@@ -782,4 +829,10 @@ void SettingsScreen::ClearCache() {
     // 启动退出计时器
     mWaitingForExit = true;
     mExitStartTime = OSGetSystemTime();
+}
+
+// 检查触摸点是否在矩形内
+bool SettingsScreen::IsTouchInRect(int touchX, int touchY, int rectX, int rectY, int rectW, int rectH) {
+    return touchX >= rectX && touchX <= rectX + rectW &&
+           touchY >= rectY && touchY <= rectY + rectH;
 }

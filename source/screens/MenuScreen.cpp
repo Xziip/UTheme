@@ -205,11 +205,14 @@ void MenuScreen::DrawMenuContent() {
                 mDebugTouchX, mDebugTouchY);
         Gfx::Print(20, 150, 24, Gfx::COLOR_WARNING, touchInfo, Gfx::ALIGN_VERTICAL);
     }
+    
+    // MenuScreen 是主屏幕，不显示返回按钮
 }
 
 bool MenuScreen::Update(Input &input) {
     // 处理子页面
     if (mSubscreen) {
+        // 有子屏幕时，不调用UpdateBackButton，避免干扰子屏幕的输入
         if (!mSubscreen->Update(input)) {
             // subscreen wants to exit
             mSubscreen.reset();
@@ -264,6 +267,9 @@ bool MenuScreen::Update(Input &input) {
         // 冷却期间不处理任何会触发子页面的输入
         return true;
     }
+
+    // MenuScreen 没有子屏幕时，调用 UpdateBackButton 支持拖动（不响应点击返回）
+    Screen::UpdateBackButton(input);
 
     // Check for version number click to enable debug (7 clicks in 3 seconds)
     if (input.data.touched && input.data.validPointer && !input.lastData.touched) {

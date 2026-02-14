@@ -6,6 +6,7 @@
 #include <cstring>
 #include <cstdio>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <unistd.h>
@@ -52,9 +53,7 @@ ThemeDownloader::~ThemeDownloader() {
     }
     
     // 清理临时文件
-    if (!mTempFilePath.empty()) {
-        unlink(mTempFilePath.c_str());
-    }
+    CleanupDownload();
     
     FileLogger::GetInstance().LogInfo("[ThemeDownloader] Destructor completed");
 }
@@ -233,6 +232,20 @@ void ThemeDownloader::DownloadThreadFunc(const std::string& url, const std::stri
     DEBUG_FUNCTION_LINE("Download thread started for theme: %s", themeName.c_str());
     FileLogger::GetInstance().LogInfo("Starting async download for: %s", themeName.c_str());
     
+    // 检查磁盘空间
+    long long availableMB = GetAvailableDiskSpaceMB();
+    FileLogger::GetInstance().LogInfo("Available disk space: %lld MB", availableMB);
+    
+    if (availableMB < 100) {
+        mErrorMessage = "Disk space low (" + std::to_string(availableMB) + "MB). Please clear cache in Settings.";
+        FileLogger::GetInstance().LogWarning("%s", mErrorMessage.c_str());
+        mState.store(DOWNLOAD_ERROR);
+        if (mStateCallback) {
+            mStateCallback(DOWNLOAD_ERROR, mErrorMessage);
+        }
+        return;
+    }
+    
     // 调试: 打印主题名的十六进制
     std::string hexDump;
     for (size_t i = 0; i < themeName.length() && i < 200; ++i) {
@@ -279,6 +292,8 @@ void ThemeDownloader::DownloadThreadFunc(const std::string& url, const std::stri
             if (mStateCallback) {
                 mStateCallback(DOWNLOAD_ERROR, mErrorMessage);
             }
+            // 清理失败的下载文件
+            CleanupDownload();
         }
         return;
     }
@@ -302,6 +317,8 @@ void ThemeDownloader::DownloadThreadFunc(const std::string& url, const std::stri
             if (mStateCallback) {
                 mStateCallback(DOWNLOAD_ERROR, mErrorMessage);
             }
+            // 清理失败的下载和解压文件
+            CleanupDownload();
         }
         return;
     }
@@ -379,6 +396,15 @@ bool ThemeDownloader::DownloadFile(const std::string& url, const std::string& ou
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
+    
+    // 性能优化设置
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);        // TCP keepalive
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 60L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
+    curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 0L);         // 允许连接复用
+    curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 0L);        // 优先复用现有连接
+    curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 524288L);      // 512KB大缓冲区(主题文件大)
+    curl_easy_setopt(curl, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0); // HTTP/2
     
     // 设置进度回调
     curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);
@@ -505,4 +531,71 @@ bool ThemeDownloader::ExtractZip(const std::string& zipPath, const std::string& 
     
     FileLogger::GetInstance().LogInfo("Extraction completed");
     return true;
+}
+
+void ThemeDownloader::CleanupDownload() {
+    FileLogger::GetInstance().LogInfo("[CleanupDownload] Cleaning up failed download...");
+    
+    // 删除临时 ZIP 文件
+    if (!mTempFilePath.empty()) {
+        if (unlink(mTempFilePath.c_str()) == 0) {
+            FileLogger::GetInstance().LogInfo("[CleanupDownload] Deleted ZIP: %s", mTempFilePath.c_str());
+        } else {
+            FileLogger::GetInstance().LogWarning("[CleanupDownload] Failed to delete ZIP: %s", mTempFilePath.c_str());
+        }
+    }
+    
+    // 删除不完整的解压目录（递归删除）
+    if (!mExtractPath.empty()) {
+        std::function<bool(const std::string&)> removeDirectory = [&](const std::string& path) -> bool {
+            DIR* dir = opendir(path.c_str());
+            if (!dir) {
+                return false;
+            }
+            
+            struct dirent* entry;
+            while ((entry = readdir(dir)) != nullptr) {
+                std::string name = entry->d_name;
+                if (name == "." || name == "..") continue;
+                
+                std::string fullPath = path + "/" + name;
+                struct stat st;
+                if (stat(fullPath.c_str(), &st) == 0) {
+                    if (S_ISDIR(st.st_mode)) {
+                        removeDirectory(fullPath);
+                    } else {
+                        unlink(fullPath.c_str());
+                    }
+                }
+            }
+            closedir(dir);
+            
+            return rmdir(path.c_str()) == 0;
+        };
+        
+        if (removeDirectory(mExtractPath)) {
+            FileLogger::GetInstance().LogInfo("[CleanupDownload] Deleted directory: %s", mExtractPath.c_str());
+        } else {
+            FileLogger::GetInstance().LogWarning("[CleanupDownload] Failed to delete directory: %s", mExtractPath.c_str());
+        }
+    }
+    
+    FileLogger::GetInstance().LogInfo("[CleanupDownload] Cleanup completed");
+}
+
+long long ThemeDownloader::GetAvailableDiskSpaceMB() {
+    struct statvfs stat;
+    
+    // 检查 SD 卡挂载点
+    if (statvfs("fs:/vol/external01", &stat) != 0) {
+        FileLogger::GetInstance().LogError("[GetAvailableDiskSpaceMB] Failed to get disk stats");
+        return -1;
+    }
+    
+    // 计算可用空间 (MB)
+    // f_bavail: 可用块数, f_frsize: 块大小
+    unsigned long long availableBytes = (unsigned long long)stat.f_bavail * stat.f_frsize;
+    long long availableMB = availableBytes / (1024 * 1024);
+    
+    return availableMB;
 }

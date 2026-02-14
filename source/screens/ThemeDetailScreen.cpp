@@ -90,8 +90,12 @@ ThemeDetailScreen::ThemeDetailScreen(const Theme* theme, ThemeManager* themeMana
     mPreviewSwitchAnim.SetImmediate(1.0f);
     mFullscreenSlideAnim.SetImmediate(0.0f); // 初始化全屏滑动动画
     
-    // 记录进入时间，用于输入冷 ?
+    // 记录进入时间，用于输入冷却
     mEnterFrame = 0;
+    
+    // 获取当前主题名称（用于UI指示器）
+    ThemePatcher patcher;
+    mCurrentThemeName = patcher.GetCurrentTheme();
     
     FileLogger::GetInstance().LogInfo("ThemeDetailScreen: Opened for theme '%s'", theme->name.c_str());
     
@@ -292,17 +296,27 @@ void ThemeDetailScreen::Draw() {
     int tipY = Gfx::SCREEN_HEIGHT - 50;
     std::string hints = _("theme_detail.hints");
     
-    // 替换 <Arrow> 为实际的箭头图标 (FontAwesome \ue07e)
+    // 替换 <Arrow> 为实际的箭头图标
     size_t pos = hints.find("<Arrow>");
     if (pos != std::string::npos) {
         hints.replace(pos, 7, "\ue07e");
     }
     
+    // 临时使用 CJK 字体渲染（因为包含特殊 Unicode 字符）
+    bool originalFontSetting = Gfx::GetUseLatinFont();
+    Gfx::SetUseLatinFont(false);  // 强制使用 CJK 字体
+    
     Gfx::Print(Gfx::SCREEN_WIDTH / 2, tipY, 24, Gfx::COLOR_ALT_TEXT, 
                hints.c_str(), Gfx::ALIGN_CENTER);
     
+    // 恢复原字体设置
+    Gfx::SetUseLatinFont(originalFontSetting);
+    
     // 移除全局触摸调试信息 - 不应该默认显示
     // 如果需要调试,应该在详情页单独激活,而不是继承主菜单的状态
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 void ThemeDetailScreen::DrawPreviewSection(int yOffset) {
@@ -1068,6 +1082,11 @@ void ThemeDetailScreen::HandleTouchInput(const Input& input) {
 }
 
 bool ThemeDetailScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     // 保存输入状态用于调试显示
     mLastInput = input;
     

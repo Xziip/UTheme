@@ -51,9 +51,8 @@ private:
         int x, y, w, h;
     };
     std::vector<CardBounds> mLanguageCardBounds;  // 语言卡片边界
+    CardBounds mSettingItemBounds[SETTINGS_COUNT];  // 设置项边界
     bool mTouchStartedOnLanguageCard = false;
-    BackButtonBounds mBackButtonBounds = {0, 0, 0, 0};  // 返回按钮边界
-    bool mBackButtonHovered = false;  // 返回按钮悬停状态
     
     // 清除缓存退出计时器
     bool mWaitingForExit = false;
@@ -65,4 +64,5 @@ private:
     void DrawLanguageDialog();
     bool UpdateLanguageDialog(Input &input);
     void ClearCache();
+    bool IsTouchInRect(int touchX, int touchY, int rectX, int rectY, int rectW, int rectH);
 };

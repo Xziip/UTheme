@@ -209,6 +209,9 @@ void LocalInstallScreen::Draw() {
         Gfx::Print(Gfx::SCREEN_WIDTH / 2, Gfx::SCREEN_HEIGHT - 40, 28, 
                    Gfx::COLOR_ALT_TEXT, hint.c_str(), Gfx::ALIGN_CENTER);
     }
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 void LocalInstallScreen::DrawFileList() {
@@ -575,6 +578,11 @@ void LocalInstallScreen::DrawEmptyState() {
 }
 
 bool LocalInstallScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     State currentState = mState.load();
     
     // 处理文件列表导航

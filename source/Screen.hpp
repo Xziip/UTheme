@@ -103,11 +103,22 @@ protected:
         int x, y, w, h;
     };
     
-    // 绘制返回按钮并返回边界信息
-    static BackButtonBounds DrawBackButton(int x, int y, bool hovered = false);
+    // 圆形拖动按钮状态（所有屏幕共享）
+    static int sBackButtonX;
+    static int sBackButtonY;
+    static bool sBackButtonDragging;
+    static bool sButtonPressed;  // 追踪按钮是否被按下
+    static int sDragStartX;
+    static int sDragStartY;
+    static int sDragOffsetX;
+    static int sDragOffsetY;
+    static int sHoldFrames;
     
-    // 检测触摸是否点击了返回按钮
-    static bool IsTouchOnBackButton(const Input &input, const BackButtonBounds& bounds);
+    // 绘制圆形返回按钮（可拖动）
+    static void DrawBackButton();
+    
+    // 更新返回按钮状态（处理拖动）
+    static bool UpdateBackButton(const Input &input);
     
     // 全局触摸调试信息绘制 (所有子类都可以调用)
     // 实现在 Screen.cpp 中以避免循环依赖

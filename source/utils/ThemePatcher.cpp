@@ -1,10 +1,17 @@
 #include "ThemePatcher.hpp"
-#include "SimpleJsonParser.hpp"
+#include "NUSDownloader.hpp"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/error/en.h"
 #include "FileLogger.hpp"
+#include "Utils.hpp"
 #include "logger.h"
 #include "hips.hpp"
 #include "minizip/unzip.h"
 #include <sysapp/title.h>
+#include <sstream>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -190,21 +197,28 @@ bool ThemePatcher::ReadThemeMetadata(const std::string& themePath, ThemeMetadata
     
     FileLogger::GetInstance().LogInfo("Read metadata.json content (first 200 chars): %.200s", jsonContent.c_str());
     
-    // 解析 JSON
+    // 使用 rapidjson 解析
     try {
-        JsonValue root = SimpleJsonParser::Parse(jsonContent);
+        rapidjson::Document root;
+        root.Parse(jsonContent.c_str());
+        
+        if (root.HasParseError()) {
+            FileLogger::GetInstance().LogError("JSON parse error: %s",
+                rapidjson::GetParseError_En(root.GetParseError()));
+            return false;
+        }
         
         FileLogger::GetInstance().LogInfo("JSON parsed successfully");
         
-        if (!root.has("Metadata")) {
+        if (!root.HasMember("Metadata")) {
             FileLogger::GetInstance().LogError("Invalid metadata.json: missing Metadata section");
             // 尝试直接从根节点读取（可能格式不同）
-            if (root.has("themeID")) {
+            if (root.HasMember("themeID")) {
                 FileLogger::GetInstance().LogInfo("Found flat metadata format, using direct fields");
-                metadata.themeID = root.has("themeID") ? root["themeID"].asString() : "";
-                metadata.themeName = root.has("themeName") ? root["themeName"].asString() : "";
-                metadata.themeAuthor = root.has("themeAuthor") ? root["themeAuthor"].asString() : "";
-                metadata.themeVersion = root.has("themeVersion") ? root["themeVersion"].asString() : "1.0";
+                metadata.themeID = root.HasMember("themeID") && root["themeID"].IsString() ? root["themeID"].GetString() : "";
+                metadata.themeName = root.HasMember("themeName") && root["themeName"].IsString() ? root["themeName"].GetString() : "";
+                metadata.themeAuthor = root.HasMember("themeAuthor") && root["themeAuthor"].IsString() ? root["themeAuthor"].GetString() : "";
+                metadata.themeVersion = root.HasMember("themeVersion") && root["themeVersion"].IsString() ? root["themeVersion"].GetString() : "1.0";
                 metadata.themeRegion = REGION_UNIVERSAL;
                 
                 FileLogger::GetInstance().LogInfo("Theme metadata loaded (flat): %s by %s",
@@ -214,12 +228,12 @@ bool ThemePatcher::ReadThemeMetadata(const std::string& themePath, ThemeMetadata
             return false;
         }
         
-        const JsonValue& metadataNode = root["Metadata"];
+        const auto& metadataNode = root["Metadata"];
         
-        metadata.themeID = metadataNode.has("themeID") ? metadataNode["themeID"].asString() : "";
-        metadata.themeName = metadataNode.has("themeName") ? metadataNode["themeName"].asString() : "";
-        metadata.themeAuthor = metadataNode.has("themeAuthor") ? metadataNode["themeAuthor"].asString() : "";
-        metadata.themeVersion = metadataNode.has("themeVersion") ? metadataNode["themeVersion"].asString() : "1.0";
+        metadata.themeID = metadataNode.HasMember("themeID") && metadataNode["themeID"].IsString() ? metadataNode["themeID"].GetString() : "";
+        metadata.themeName = metadataNode.HasMember("themeName") && metadataNode["themeName"].IsString() ? metadataNode["themeName"].GetString() : "";
+        metadata.themeAuthor = metadataNode.HasMember("themeAuthor") && metadataNode["themeAuthor"].IsString() ? metadataNode["themeAuthor"].GetString() : "";
+        metadata.themeVersion = metadataNode.HasMember("themeVersion") && metadataNode["themeVersion"].IsString() ? metadataNode["themeVersion"].GetString() : "1.0";
         
         // 默认为 UNIVERSAL
         metadata.themeRegion = REGION_UNIVERSAL;
@@ -466,13 +480,23 @@ bool ThemePatcher::InstallTheme(const std::string& themePath,
         if (!ApplyBPSPatch(originalData, patchData, patchedData)) {
             FileLogger::GetInstance().LogError("Failed to apply patch: %s", originalFileName.c_str());
             
-            // 显式释放内存
-            originalData.clear();
-            originalData.shrink_to_fit();
-            patchData.clear();
-            patchData.shrink_to_fit();
+            // 尝试从 NUS 下载原始文件并重试
+            FileLogger::GetInstance().LogInfo("Attempting NUS download and retry for: %s", originalFileName.c_str());
             
-            continue;
+            if (DownloadFromNUSAndRetry(originalFilePath, patchData, patchedData)) {
+                FileLogger::GetInstance().LogInfo("Successfully applied patch with NUS file");
+                // 继续处理 patchedData
+            } else {
+                FileLogger::GetInstance().LogError("NUS download and retry failed");
+                
+                // 显式释放内存
+                originalData.clear();
+                originalData.shrink_to_fit();
+                patchData.clear();
+                patchData.shrink_to_fit();
+                
+                continue;
+            }
         }
         
         // 显式释放不再需要的内存
@@ -709,3 +733,233 @@ std::vector<ThemeMetadata> ThemePatcher::GetInstalledThemes() {
     
     return themes;
 }
+
+bool ThemePatcher::SetCurrentTheme(const std::string& themeID) {
+    std::string envPath = Utils::GetEnvironmentPath();
+    if (envPath.empty()) {
+        FileLogger::GetInstance().LogError("Failed to get environment path - Mocha not available?");
+        return false;
+    }
+    
+    const std::string path = envPath + "/plugins/config/style-mii-u.json";
+
+    // 读取安装信息获取主题名称
+    std::string installedInfoPath = std::string(INSTALLED_THEMES_ROOT) + "/" + themeID + ".json";
+    
+    FILE* jsonFile = fopen(installedInfoPath.c_str(), "r");
+    if (!jsonFile) {
+        FileLogger::GetInstance().LogError("Theme (%s) not installed or info file missing", themeID.c_str());
+        return false;
+    }
+    
+    fseek(jsonFile, 0, SEEK_END);
+    size_t fileSize = ftell(jsonFile);
+    rewind(jsonFile);
+    
+    std::string jsonContent;
+    jsonContent.resize(fileSize);
+    fread(&jsonContent[0], 1, fileSize, jsonFile);
+    fclose(jsonFile);
+    
+    // 使用 rapidjson 解析
+    rapidjson::Document themeInfo;
+    themeInfo.Parse(jsonContent.c_str());
+    
+    if (themeInfo.HasParseError() || !themeInfo.IsObject()) {
+        FileLogger::GetInstance().LogError("Invalid theme info JSON");
+        return false;
+    }
+    
+    std::string themeName;
+    if (themeInfo.HasMember("themeName") && themeInfo["themeName"].IsString()) {
+        themeName = themeInfo["themeName"].GetString();
+    }
+    
+    if (themeName.empty()) {
+        FileLogger::GetInstance().LogError("Failed to parse theme name");
+        return false;
+    }
+
+    // 读取 StyleMiiU 配置
+    std::ifstream in(path);
+    if (!in) {
+        FileLogger::GetInstance().LogError("Could not open StyleMiiU config: %s", path.c_str());
+        return false;
+    }
+    std::stringstream buffer;
+    buffer << in.rdbuf();
+    std::string jsonText = buffer.str();
+    in.close();
+
+    // 使用 rapidjson 解析和修改
+    rapidjson::Document root;
+    root.Parse(jsonText.c_str());
+    
+    if (root.HasParseError() || !root.IsObject()) {
+        FileLogger::GetInstance().LogError("Invalid StyleMiiU JSON");
+        return false;
+    }
+
+    // 确保 storageitems 存在
+    if (!root.HasMember("storageitems")) {
+        root.AddMember("storageitems", rapidjson::Value(rapidjson::kObjectType), root.GetAllocator());
+    }
+    
+    rapidjson::Value themeNameValue;
+    themeNameValue.SetString(themeName.c_str(), themeName.length(), root.GetAllocator());
+    if (root["storageitems"].HasMember("enabledThemes")) {
+        root["storageitems"]["enabledThemes"] = themeNameValue;
+    } else {
+        root["storageitems"].AddMember("enabledThemes", themeNameValue, root.GetAllocator());
+    }
+
+    std::ofstream out(path, std::ios::trunc);
+    if (!out) {
+        FileLogger::GetInstance().LogError("Failed to write StyleMiiU config: %s", path.c_str());
+        return false;
+    }
+    
+    rapidjson::StringBuffer strbuf;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(strbuf);
+    writer.SetIndent(' ', 2);
+    root.Accept(writer);
+    out << strbuf.GetString();
+    out.close();
+
+    FileLogger::GetInstance().LogInfo("Successfully set %s as current StyleMiiU theme!", themeName.c_str());
+    return true;
+}
+
+std::string ThemePatcher::GetCurrentTheme() {
+    std::string envPath = Utils::GetEnvironmentPath();
+    if (envPath.empty()) {
+        return "";
+    }
+    
+    const std::string path = envPath + "/plugins/config/style-mii-u.json";
+
+    std::ifstream in(path);
+    if (!in.is_open()) {
+        FileLogger::GetInstance().LogError("Failed to open StyleMiiU config file: %s", path.c_str());
+        return "";
+    }
+
+    std::stringstream buffer;
+    buffer << in.rdbuf();
+    in.close();
+
+    std::string jsonText = buffer.str();
+
+    try {
+        rapidjson::Document root;
+        root.Parse(jsonText.c_str());
+        
+        if (root.HasParseError() || !root.IsObject()) {
+            return "";
+        }
+
+        if (!root.HasMember("storageitems") || !root["storageitems"].IsObject()) {
+            return "";
+        }
+
+        const auto& storageItems = root["storageitems"];
+        if (!storageItems.HasMember("enabledThemes") || !storageItems["enabledThemes"].IsString()) {
+            return "";
+        }
+
+        return storageItems["enabledThemes"].GetString();
+    } catch (const std::exception& e) {
+        FileLogger::GetInstance().LogError("Failed to parse StyleMiiU config: %s", e.what());
+        return "";
+    }
+}
+
+bool ThemePatcher::DownloadFromNUSAndRetry(const std::string& originalFilePath,
+                                           const std::vector<uint8_t>& patchData,
+                                           std::vector<uint8_t>& patchedData) {
+    FileLogger::GetInstance().LogInfo("Attempting NUS download for: %s", originalFilePath.c_str());
+    
+    if (mProgressCallback) {
+        mProgressCallback(0.0f, "Downloading from NUS...");
+    }
+    
+    // TODO: 根据文件路径确定需要下载的 content ID
+    // 这需要知道每个文件对应哪个 content ID
+    // 暂时使用一个通用的方法
+    
+    // 常见的 Wii U Menu 文件映射
+    // Men.pack, Men2.pack -> content 00000002
+    // cafe_barista_men.bfsar -> content 00000009
+    // AllMessage.szs -> 语言包 content (varies by region)
+    
+    std::string contentID = "00000002"; // 默认使用主要内容
+    
+    // 简化：直接匹配常见文件
+    if (originalFilePath.find("cafe_barista") != std::string::npos) {
+        contentID = "00000009";
+    } else if (originalFilePath.find("Package/Men") != std::string::npos) {
+        contentID = "00000002";
+    }
+    
+    // 创建临时文件路径
+    std::string tempPath = std::string(CACHE_ROOT) + "/nus_download_temp.bin";
+    CreateDirectoryRecursive(CACHE_ROOT);
+    
+    // 下载文件
+    NUSDownloader downloader;
+    
+    auto progressWrapper = [this](float progress) {
+        if (mProgressCallback) {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "Downloading from NUS... %.0f%%", progress * 100);
+            mProgressCallback(progress, msg);
+        }
+    };
+    
+    if (!downloader.DownloadMenuContent(contentID, tempPath, progressWrapper)) {
+        FileLogger::GetInstance().LogError("NUS download failed");
+        return false;
+    }
+    
+    FileLogger::GetInstance().LogInfo("NUS download successful, retrying patch...");
+    
+    // 读取下载的文件
+    FILE* tempFile = fopen(tempPath.c_str(), "rb");
+    if (!tempFile) {
+        FileLogger::GetInstance().LogError("Failed to open downloaded file");
+        return false;
+    }
+    
+    fseek(tempFile, 0, SEEK_END);
+    size_t tempSize = ftell(tempFile);
+    rewind(tempFile);
+    
+    std::vector<uint8_t> nusData(tempSize);
+    fread(nusData.data(), 1, tempSize, tempFile);
+    fclose(tempFile);
+    
+    // 删除临时文件
+    remove(tempPath.c_str());
+    
+    // 使用 NUS 下载的文件重新尝试补丁
+    if (!ApplyBPSPatch(nusData, patchData, patchedData)) {
+        FileLogger::GetInstance().LogError("Patch still failed with NUS file");
+        return false;
+    }
+    
+    FileLogger::GetInstance().LogInfo("Patch successful with NUS file!");
+    
+    // 可选：备份并替换原始文件
+    std::string backupPath = originalFilePath + ".backup";
+    rename(originalFilePath.c_str(), backupPath.c_str());
+    
+    FILE* outFile = fopen(originalFilePath.c_str(), "wb");
+    if (outFile) {
+        fwrite(nusData.data(), 1, nusData.size(), outFile);
+        fclose(outFile);
+        FileLogger::GetInstance().LogInfo("Replaced system file with NUS download");
+    }
+    
+    return true;
+}
+

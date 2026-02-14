@@ -4,6 +4,8 @@
 #include "../utils/ThemeManager.hpp"
 #include <memory>
 #include <set>
+#include <string>
+#include <nn/swkbd.h>
 
 class DownloadScreen : public Screen {
 public:
@@ -46,6 +48,14 @@ private:
     // 已安装主题缓存(用于快速检查,避免频繁磁盘IO)
     std::set<std::string> mInstalledThemeIds;
     
+    // 当前激活的主题名称（来自 StyleMiiU 配置）
+    std::string mCurrentThemeName;
+    
+    // 搜索功能
+    std::string mSearchText;  // 当前搜索文本
+    std::vector<size_t> mFilteredIndices;  // 过滤后的主题索引
+    bool mSearchActive = false;  // 是否正在使用搜索
+    
     // 详情屏幕
     class ThemeDetailScreen* mDetailScreen = nullptr;
     
@@ -69,4 +79,11 @@ private:
     // 绘制主题列表
     void DrawThemeList();
     void DrawThemeCard(int x, int y, int w, int h, Theme& theme, bool selected, int themeIndex);
+    
+    // 搜索相关
+    void DrawSearchBox();
+    void ShowKeyboard();
+    void ApplySearch();
+    void SelectRandomTheme();  // 随机选择主题
+    const std::vector<Theme>& GetDisplayThemes();
 };

@@ -161,6 +161,10 @@ namespace Gfx {
         // Simply switch the flag - caches are maintained separately
         useLatinFont = useLatin;
     }
+    
+    bool GetUseLatinFont() {
+        return useLatinFont;
+    }
 
     void Clear(SDL_Color color) {
         SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);

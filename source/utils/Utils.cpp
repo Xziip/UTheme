@@ -12,6 +12,7 @@
 #include <mbedtls/sha256.h>
 #include <sys/fcntl.h>
 #include <sys/unistd.h>
+#include <mocha/mocha.h>
 
 namespace Utils {
     bool CheckFile(const std::string &fullpath) {
@@ -228,5 +229,18 @@ namespace Utils {
         
         return safe;
     }
+    // Gets the current Homebrew environment's path on the SD Card
+    std::string GetEnvironmentPath() {
+        char environmentPathBuffer[0x100];
 
+        MochaUtilsStatus res;
+
+        if ((res = Mocha_GetEnvironmentPath(environmentPathBuffer, sizeof(environmentPathBuffer))) != MOCHA_RESULT_SUCCESS) {
+            DEBUG_FUNCTION_LINE_ERR("Failed to get environment path. Are you running on Aroma? Result: %s", Mocha_GetStatusStr(res));
+            return "";
+        }
+
+        std::string environementPath = environmentPathBuffer;
+        return environementPath;
+    }
 } // namespace Utils

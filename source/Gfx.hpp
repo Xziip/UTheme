@@ -47,6 +47,8 @@ namespace Gfx {
     void Shutdown();
     
     void SetUseLatinFont(bool useLatin);  // Switch between Latin and CJK font
+    
+    bool GetUseLatinFont();  // Get current font setting
 
     void Clear(SDL_Color color);
 

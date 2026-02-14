@@ -120,8 +120,16 @@ void AboutScreen::Draw() {
     Gfx::SetGlobalAlpha(1.0f);
 
     DrawBottomBar(nullptr, (std::string("\ue044 ") + _("input.exit")).c_str(), (std::string("\ue001 ") + _("input.back")).c_str());
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 bool AboutScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     return !(input.data.buttons_d & Input::BUTTON_B);
 }

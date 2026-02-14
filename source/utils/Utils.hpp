@@ -30,4 +30,7 @@ namespace Utils {
     // 清理主题名称中的特殊Unicode字符用于显示
     std::string SanitizeThemeNameForDisplay(const std::string& themeName);
 
+    // Gets the current Homebrew environment's path on the SD Card (via libmocha)
+    std::string GetEnvironmentPath();
+
 } // namespace Utils

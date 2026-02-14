@@ -56,6 +56,12 @@ public:
     // 获取已安装的主题列表
     std::vector<ThemeMetadata> GetInstalledThemes();
     
+    // StyleMiiU 集成 - 设置当前主题到 StyleMiiU 配置
+    bool SetCurrentTheme(const std::string& themeID);
+    
+    // StyleMiiU 集成 - 获取 StyleMiiU 配置中的当前主题
+    std::string GetCurrentTheme();
+    
     // 设置进度回调
     void SetProgressCallback(std::function<void(float progress, const std::string& message)> callback);
     
@@ -70,4 +76,9 @@ private:
     bool CreateDirectoryRecursive(const std::string& path);
     void ScanForBPSFiles(const std::string& basePath, const std::string& currentPath, 
                         std::vector<std::string>& bpsFiles);
+    
+    // NUS 下载支持
+    bool DownloadFromNUSAndRetry(const std::string& originalFilePath,
+                                 const std::vector<uint8_t>& patchData,
+                                 std::vector<uint8_t>& patchedData);
 };

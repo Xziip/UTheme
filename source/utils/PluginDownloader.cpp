@@ -1,5 +1,6 @@
 #include "PluginDownloader.hpp"
 #include "FileLogger.hpp"
+#include "Utils.hpp"
 #include "../Screen.hpp"
 #include <curl/curl.h>
 #include <cstdio>
@@ -12,8 +13,16 @@ PluginDownloader& PluginDownloader::GetInstance() {
 }
 
 bool PluginDownloader::CheckAndDownloadStyleMiiU() {
-    const char* pluginPath = "fs:/vol/external01/wiiu/environments/aroma/plugins/stylemiiu.wps";
-    const char* downloadUrl = "https://github.com/Themiify-hb/StyleMiiU-Plugin/releases/download/0.4.3/stylemiiu.wps";
+    // 使用动态环境路径而不是硬编码
+    std::string envPath = Utils::GetEnvironmentPath();
+    if (envPath.empty()) {
+        FileLogger::GetInstance().LogError("[PluginDownloader] Failed to get environment path - Mocha not available?");
+        return false;
+    }
+    
+    std::string pluginPathStr = envPath + "/plugins/stylemiiu.wps";
+    const char* pluginPath = pluginPathStr.c_str();
+    const char* downloadUrl = "https://github.com/Themiify-hb/StyleMiiU-Plugin/releases/latest/download/stylemiiu.wps";
     
     FileLogger::GetInstance().LogInfo("[PluginDownloader] Checking for StyleMiiU plugin at: %s", pluginPath);
     
@@ -27,7 +36,7 @@ bool PluginDownloader::CheckAndDownloadStyleMiiU() {
     FileLogger::GetInstance().LogInfo("[PluginDownloader] StyleMiiU plugin not found, downloading...");
     
     // 下载插件
-    bool success = DownloadFile(downloadUrl, pluginPath);
+    bool success = DownloadFile(downloadUrl, pluginPathStr);
     
     if (success) {
         FileLogger::GetInstance().LogInfo("[PluginDownloader] StyleMiiU plugin downloaded successfully");

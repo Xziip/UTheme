@@ -20,6 +20,9 @@ private:
     ThemeManager* mThemeManager;
     bool mIsLocalMode = false; // 是否为本地模式(已下载的主题)
     
+    // 当前激活的主题名称（来自 StyleMiiU 配置）
+    std::string mCurrentThemeName;
+    
     enum State {
         STATE_VIEWING,
         STATE_DOWNLOADING,

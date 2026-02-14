@@ -14,19 +14,24 @@ void BgmNotification::ShowNowPlaying(const std::string& musicName, const std::st
     AddNotification(TYPE_MUSIC, musicName, artist);
 }
 
-void BgmNotification::ShowError(const std::string& message) {
-    AddNotification(TYPE_ERROR, message);
+void BgmNotification::ShowError(const std::string& message, uint64_t displayMs, const std::string& title) {
+    AddNotification(TYPE_ERROR, message, "", displayMs, title);
 }
 
-void BgmNotification::ShowInfo(const std::string& message) {
-    AddNotification(TYPE_INFO, message);
+void BgmNotification::ShowWarning(const std::string& message, uint64_t displayMs, const std::string& title) {
+    AddNotification(TYPE_WARNING, message, "", displayMs, title);
 }
 
-void BgmNotification::AddNotification(NotificationType type, const std::string& text1, const std::string& text2) {
+void BgmNotification::ShowInfo(const std::string& message, uint64_t displayMs, const std::string& title) {
+    AddNotification(TYPE_INFO, message, "", displayMs, title);
+}
+
+void BgmNotification::AddNotification(NotificationType type, const std::string& text1, const std::string& text2, uint64_t displayMs, const std::string& title) {
     Notification notif;
     notif.type = type;
     notif.showTime = OSGetTime();
-    notif.displayDuration = 4000; // 默认4秒
+    notif.displayDuration = displayMs;
+    notif.title = title;
     
     if (type == TYPE_MUSIC) {
         notif.musicName = text1;
@@ -124,6 +129,8 @@ void BgmNotification::DrawNotification(const Notification& notif, int x, int y, 
     SDL_Color bgColor;
     if (notif.type == TYPE_ERROR) {
         bgColor = SDL_Color{50, 20, 20, (Uint8)(240 * fadeAlpha)};
+    } else if (notif.type == TYPE_WARNING) {
+        bgColor = SDL_Color{50, 40, 20, (Uint8)(240 * fadeAlpha)};  // 橙黄色调的警告背景
     } else if (notif.type == TYPE_INFO) {
         bgColor = SDL_Color{20, 40, 50, (Uint8)(240 * fadeAlpha)};  // 蓝色调的提示背景
     } else {
@@ -135,6 +142,8 @@ void BgmNotification::DrawNotification(const Notification& notif, int x, int y, 
     SDL_Color accentColor;
     if (notif.type == TYPE_ERROR) {
         accentColor = Gfx::COLOR_ERROR;
+    } else if (notif.type == TYPE_WARNING) {
+        accentColor = Gfx::COLOR_WARNING;  // 橙黄色警告条
     } else if (notif.type == TYPE_INFO) {
         accentColor = Gfx::COLOR_SUCCESS;  // 绿色调的提示条
     } else {
@@ -147,24 +156,65 @@ void BgmNotification::DrawNotification(const Notification& notif, int x, int y, 
         // 错误模式 - 显示错误图标和消息
         SDL_Color iconColor = Gfx::COLOR_ERROR;
         iconColor.a = (Uint8)(255 * fadeAlpha);
-        Gfx::DrawIcon(x + 35, y + NOTIFICATION_HEIGHT / 2, 36, iconColor, 0xf06a, Gfx::ALIGN_CENTER);
+        Gfx::DrawIcon(x + 35, y + NOTIFICATION_HEIGHT / 2, 36, iconColor, 0xf06a, Gfx::ALIGN_CENTER);  // exclamation-circle
         
-        SDL_Color textColor = Gfx::COLOR_TEXT;
-        textColor.a = (Uint8)(255 * fadeAlpha);
-        Gfx::Print(x + 70, y + 30, 28, textColor, "BGM Error", Gfx::ALIGN_VERTICAL);
+        if (!notif.title.empty()) {
+            // 有标题 - 双行显示
+            SDL_Color titleColor = Gfx::COLOR_TEXT;
+            titleColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + 30, 28, titleColor, notif.title.c_str(), Gfx::ALIGN_VERTICAL);
+            
+            SDL_Color msgColor = Gfx::COLOR_ALT_TEXT;
+            msgColor.a = (Uint8)(220 * fadeAlpha);
+            Gfx::Print(x + 70, y + 60, 24, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        } else {
+            // 无标题 - 单行居中显示
+            SDL_Color msgColor = Gfx::COLOR_TEXT;
+            msgColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + NOTIFICATION_HEIGHT / 2, 26, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        }
+    } else if (notif.type == TYPE_WARNING) {
+        // 警告模式 - 显示警告图标和消息
+        SDL_Color iconColor = Gfx::COLOR_WARNING;
+        iconColor.a = (Uint8)(255 * fadeAlpha);
+        Gfx::DrawIcon(x + 35, y + NOTIFICATION_HEIGHT / 2, 36, iconColor, 0xf071, Gfx::ALIGN_CENTER);  // exclamation-triangle
         
-        SDL_Color msgColor = Gfx::COLOR_ALT_TEXT;
-        msgColor.a = (Uint8)(220 * fadeAlpha);
-        Gfx::Print(x + 70, y + 60, 24, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        if (!notif.title.empty()) {
+            // 有标题 - 双行显示
+            SDL_Color titleColor = Gfx::COLOR_TEXT;
+            titleColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + 30, 28, titleColor, notif.title.c_str(), Gfx::ALIGN_VERTICAL);
+            
+            SDL_Color msgColor = Gfx::COLOR_ALT_TEXT;
+            msgColor.a = (Uint8)(220 * fadeAlpha);
+            Gfx::Print(x + 70, y + 60, 24, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        } else {
+            // 无标题 - 单行居中显示
+            SDL_Color msgColor = Gfx::COLOR_TEXT;
+            msgColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + NOTIFICATION_HEIGHT / 2, 26, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        }
     } else if (notif.type == TYPE_INFO) {
         // 提示模式 - 显示信息图标和消息
         SDL_Color iconColor = Gfx::COLOR_SUCCESS;
         iconColor.a = (Uint8)(255 * fadeAlpha);
         Gfx::DrawIcon(x + 35, y + NOTIFICATION_HEIGHT / 2, 36, iconColor, 0xf05a, Gfx::ALIGN_CENTER);  // info-circle
         
-        SDL_Color msgColor = Gfx::COLOR_TEXT;
-        msgColor.a = (Uint8)(255 * fadeAlpha);
-        Gfx::Print(x + 70, y + NOTIFICATION_HEIGHT / 2, 26, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        if (!notif.title.empty()) {
+            // 有标题 - 双行显示
+            SDL_Color titleColor = Gfx::COLOR_TEXT;
+            titleColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + 30, 28, titleColor, notif.title.c_str(), Gfx::ALIGN_VERTICAL);
+            
+            SDL_Color msgColor = Gfx::COLOR_ALT_TEXT;
+            msgColor.a = (Uint8)(220 * fadeAlpha);
+            Gfx::Print(x + 70, y + 60, 24, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        } else {
+            // 无标题 - 单行居中显示
+            SDL_Color msgColor = Gfx::COLOR_TEXT;
+            msgColor.a = (Uint8)(255 * fadeAlpha);
+            Gfx::Print(x + 70, y + NOTIFICATION_HEIGHT / 2, 26, msgColor, notif.message.c_str(), Gfx::ALIGN_VERTICAL);
+        }
     } else {
         // 音乐模式 - 显示音乐图标和名称
         SDL_Color iconColor = Gfx::COLOR_ACCENT;

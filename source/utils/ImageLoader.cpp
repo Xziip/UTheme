@@ -508,6 +508,14 @@ std::vector<uint8_t> ImageLoader::DownloadData(const std::string& url) {
     curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);  // 启用详细日志
     
+    // 性能优化
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPIDLE, 60L);
+    curl_easy_setopt(curl, CURLOPT_TCP_KEEPINTVL, 60L);
+    curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 0L);
+    curl_easy_setopt(curl, CURLOPT_FRESH_CONNECT, 0L);
+    curl_easy_setopt(curl, CURLOPT_BUFFERSIZE, 102400L);  // 100KB缓冲区
+    
     FileLogger::GetInstance().LogInfo("[CURL] Starting download: %s", url.c_str());
     
     CURLcode res = curl_easy_perform(curl);

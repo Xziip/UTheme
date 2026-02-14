@@ -37,8 +37,7 @@ private:
         STATE_INIT,
         STATE_LANGUAGE_SELECT,  // 新增:语言选择状态
         STATE_INIT_MOCHA,
-        STATE_INIT_FS,
-        STATE_LOAD_MENU,
+        STATE_INIT_FS,        STATE_CHECK_STYLEMIIU,        STATE_LOAD_MENU,
         STATE_IN_MENU,
     } mState           = STATE_INIT;
     bool mStateFailure = false;

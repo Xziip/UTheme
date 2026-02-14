@@ -43,9 +43,17 @@ void RebootScreen::Draw() {
     // 构造底部提示字符串
     std::string bottomHint = std::string("\ue000 ") + _("reboot.confirm_button") + " / \ue001 " + _("common.cancel");
     DrawBottomBar(nullptr, (std::string("\ue044 ") + _("input.exit")).c_str(), bottomHint.c_str());
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 bool RebootScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     if (input.data.buttons_d & Input::BUTTON_A) {
         // 重启系统
         OSLaunchTitlel(OS_TITLE_ID_REBOOT, 0);

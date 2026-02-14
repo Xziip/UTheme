@@ -3,8 +3,10 @@
 #include "Utils.hpp"
 #include "logger.h"
 #include "../Gfx.hpp"
+#include "rapidjson/document.h"
 #include <fstream>
 #include <sstream>
+#include <functional>
 #include <algorithm>
 
 // 包含嵌入的语言文件
@@ -24,150 +26,41 @@
 
 LanguageManager* LanguageManager::mInstance = nullptr;
 
-// 简单的JSON解析器（只处理字符串值）
-class SimpleJsonParser {
-public:
-    static std::map<std::string, std::string> ParseFlat(const std::string& jsonStr) {
-        std::map<std::string, std::string> result;
-        std::string content = jsonStr;
+// 使用 rapidjson 解析平坦化的 JSON
+static std::map<std::string, std::string> ParseFlatJson(const std::string& jsonStr) {
+    std::map<std::string, std::string> result;
+    
+    try {
+        rapidjson::Document j;
+        j.Parse(jsonStr.c_str());
         
-        // 移除空白字符和换行
-        content.erase(std::remove_if(content.begin(), content.end(), 
-                     [](char c) { return c == '\n' || c == '\r' || c == '\t'; }), content.end());
-        
-        size_t pos = 0;
-        std::string currentPath = "";
-        
-        ParseObject(content, pos, result, currentPath);
-        
-        return result;
-    }
-
-private:
-    static void ParseObject(const std::string& content, size_t& pos, 
-                           std::map<std::string, std::string>& result, 
-                           const std::string& path) {
-        // 跳过空白
-        SkipWhitespace(content, pos);
-        
-        if (pos >= content.length() || content[pos] != '{') {
-            return;
+        if (j.HasParseError()) {
+            DEBUG_FUNCTION_LINE("JSON parsing failed: parse error");
+            return result;
         }
         
-        pos++; // 跳过 '{'
-        
-        while (pos < content.length()) {
-            SkipWhitespace(content, pos);
-            
-            if (pos >= content.length()) break;
-            if (content[pos] == '}') {
-                pos++;
-                break;
-            }
-            
-            // 解析键
-            if (content[pos] != '"') {
-                pos++;
-                continue;
-            }
-            
-            std::string key = ParseString(content, pos);
-            
-            SkipWhitespace(content, pos);
-            if (pos >= content.length() || content[pos] != ':') {
-                continue;
-            }
-            pos++; // 跳过 ':'
-            
-            SkipWhitespace(content, pos);
-            
-            std::string fullKey = path.empty() ? key : path + "." + key;
-            
-            if (pos < content.length()) {
-                if (content[pos] == '"') {
-                    // 字符串值
-                    std::string value = ParseString(content, pos);
-                    result[fullKey] = value;
-                } else if (content[pos] == '{') {
-                    // 嵌套对象
-                    ParseObject(content, pos, result, fullKey);
-                } else {
-                    // 跳过其他类型的值
-                    SkipValue(content, pos);
+        // 使用递归函数将嵌套的 JSON 对象平坦化
+        std::function<void(const rapidjson::Value&, const std::string&)> flatten;
+        flatten = [&](const rapidjson::Value& node, const std::string& prefix) {
+            if (node.IsObject()) {
+                for (auto it = node.MemberBegin(); it != node.MemberEnd(); ++it) {
+                    std::string key = prefix.empty() ? it->name.GetString() : prefix + "." + it->name.GetString();
+                    flatten(it->value, key);
                 }
+            } else if (node.IsString()) {
+                result[prefix] = node.GetString();
             }
-            
-            SkipWhitespace(content, pos);
-            if (pos < content.length() && content[pos] == ',') {
-                pos++;
-            }
-        }
+            // 忽略其他类型（数组、数字等）
+        };
+        
+        flatten(j, "");
+        
+    } catch (const std::exception& e) {
+        DEBUG_FUNCTION_LINE("JSON parsing failed: %s", e.what());
     }
     
-    static std::string ParseString(const std::string& content, size_t& pos) {
-        if (pos >= content.length() || content[pos] != '"') {
-            return "";
-        }
-        
-        pos++; // 跳过开始的引号
-        size_t start = pos;
-        
-        while (pos < content.length() && content[pos] != '"') {
-            if (content[pos] == '\\') {
-                pos += 2; // 跳过转义字符
-            } else {
-                pos++;
-            }
-        }
-        
-        std::string result = content.substr(start, pos - start);
-        
-        if (pos < content.length() && content[pos] == '"') {
-            pos++; // 跳过结束的引号
-        }
-        
-        return result;
-    }
-    
-    static void SkipWhitespace(const std::string& content, size_t& pos) {
-        while (pos < content.length() && 
-               (content[pos] == ' ' || content[pos] == '\t' || 
-                content[pos] == '\n' || content[pos] == '\r')) {
-            pos++;
-        }
-    }
-    
-    static void SkipValue(const std::string& content, size_t& pos) {
-        SkipWhitespace(content, pos);
-        if (pos >= content.length()) return;
-        
-        if (content[pos] == '"') {
-            ParseString(content, pos);
-        } else if (content[pos] == '{') {
-            int braceCount = 1;
-            pos++;
-            while (pos < content.length() && braceCount > 0) {
-                if (content[pos] == '{') braceCount++;
-                else if (content[pos] == '}') braceCount--;
-                pos++;
-            }
-        } else if (content[pos] == '[') {
-            int bracketCount = 1;
-            pos++;
-            while (pos < content.length() && bracketCount > 0) {
-                if (content[pos] == '[') bracketCount++;
-                else if (content[pos] == ']') bracketCount--;
-                pos++;
-            }
-        } else {
-            // 跳过数字、布尔值等
-            while (pos < content.length() && 
-                   content[pos] != ',' && content[pos] != '}' && content[pos] != ']') {
-                pos++;
-            }
-        }
-    }
-};
+    return result;
+}
 
 LanguageManager& LanguageManager::getInstance() {
     if (!mInstance) {
@@ -273,7 +166,7 @@ bool LanguageManager::LoadLanguage(const std::string& languageCode) {
     }
     
     // 解析JSON
-    mTexts = SimpleJsonParser::ParseFlat(content);
+    mTexts = ParseFlatJson(content);
     
     if (mTexts.empty()) {
         DEBUG_FUNCTION_LINE("Failed to parse language data: %s", languageCode.c_str());

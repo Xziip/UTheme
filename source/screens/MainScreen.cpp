@@ -4,6 +4,8 @@
 #include "common.h"
 #include "../utils/LanguageManager.hpp"
 #include "../utils/Config.hpp"
+#include "../utils/PluginDownloader.hpp"
+#include "../utils/FileLogger.hpp"
 #include <mocha/mocha.h>
 #include <utility>
 #include <cmath>
@@ -227,6 +229,9 @@ void MainScreen::Draw() {
                 Gfx::Print(cardX + cardW/2, cardY + 220, 44, Gfx::COLOR_TEXT, _("common.mount_filesystem"), Gfx::ALIGN_CENTER);
             }
             break;
+        case STATE_CHECK_STYLEMIIU:
+            // 检查 StyleMiiU 插件状态
+            break;
         case STATE_LOAD_MENU:
             DrawLoadingSpinner(cardX + cardW/2, cardY + 120, 80, (mFrameCount % 60) / 60.0f);
             Gfx::Print(cardX + cardW/2, cardY + 220, 44, Gfx::COLOR_SUCCESS, _("common.load_complete"), Gfx::ALIGN_CENTER);
@@ -410,18 +415,26 @@ bool MainScreen::Update(Input &input) {
                     res = Mocha_MountFS(MLC_STORAGE_PATH, nullptr, "/vol/storage_mlc01");
                 }
                 if (res == MOCHA_RESULT_SUCCESS) {
-                    mState = STATE_LOAD_MENU;
+                    mState = STATE_CHECK_STYLEMIIU;
                     break;
                 }
 
                 mStateFailure = true;
                 break;
             } else {
-                // 没有Mocha,直接进入菜单
+                // 没有Mocha,跳过StyleMiiU检查直接进入菜单
                 mState = STATE_LOAD_MENU;
                 break;
             }
         }
+        case STATE_CHECK_STYLEMIIU:
+            // 检查并下载 StyleMiiU 插件 (仅在 Mocha 可用时运行)
+            if (sMochaAvailable) {
+                FileLogger::GetInstance().LogInfo("Checking for StyleMiiU plugin...");
+                PluginDownloader::GetInstance().CheckAndDownloadStyleMiiU();
+            }
+            mState = STATE_LOAD_MENU;
+            break;
         case STATE_LOAD_MENU:
             mMenuScreen = std::make_unique<MenuScreen>();
             break;

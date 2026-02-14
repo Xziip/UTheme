@@ -11,6 +11,9 @@
 #include "utils/MusicPlayer.hpp"
 #include "utils/BgmDownloader.hpp"
 #include "utils/PluginDownloader.hpp"
+#include "utils/SwkbdManager.hpp"
+#include "utils/RemoteNotification.hpp"
+#include "utils/DownloadQueue.hpp"
 #include <coreinit/title.h>
 #include <memory>
 #include <padscore/kpad.h>
@@ -53,6 +56,12 @@ int main(int argc, char const *argv[]) {
     
     // Initialize language system (will automatically load language from config)
     Lang().Initialize();
+    
+    // Initialize SwkbdManager (global keyboard manager)
+    if (!SwkbdManager::GetInstance().Init()) {
+        FileLogger::GetInstance().LogError("Failed to initialize SwkbdManager");
+        // Continue anyway, keyboard features just won't work
+    }
     
     // Initialize music player
     MusicPlayer::GetInstance().Init();
@@ -120,11 +129,11 @@ int main(int argc, char const *argv[]) {
         }
     }
     
-    // 检查并下载 StyleMiiU 插件
-    FileLogger::GetInstance().LogInfo("Checking for StyleMiiU plugin...");
-    PluginDownloader::GetInstance().CheckAndDownloadStyleMiiU();
-
+    // StyleMiiU 插件检查将在 MainScreen 初始化 Mocha 后进行
     std::unique_ptr<Screen> mainScreen = std::make_unique<MainScreen>();
+    
+    // 启动远程通知检查（异步，不阻塞）
+    RemoteNotification::GetInstance().CheckOnStartup();
 
     CombinedInput baseInput;
     VPadInput vpadInput;
@@ -153,6 +162,11 @@ int main(int argc, char const *argv[]) {
                 // screen requested quit
                 shouldQuit = true;
                 break;
+            }
+            
+            // Process download queue (for RemoteNotification, BgmDownloader, etc.)
+            if (DownloadQueue::GetInstance()) {
+                DownloadQueue::GetInstance()->Process();
             }
             
             // Update BGM downloader
@@ -184,6 +198,9 @@ int main(int argc, char const *argv[]) {
     // 清理
     FileLogger::GetInstance().LogInfo("Cleaning up resources...");
     mainScreen.reset();
+    
+    // Cleanup SwkbdManager
+    SwkbdManager::GetInstance().Shutdown();
     
     // Cleanup music player
     MusicPlayer::GetInstance().Shutdown();

@@ -34,8 +34,12 @@ DownloadQueue::DownloadQueue() {
     mCurlMulti = curl_multi_init();
     if (mCurlMulti) {
         curl_multi_setopt(mCurlMulti, CURLMOPT_MAXCONNECTS, MAX_PARALLEL_DOWNLOADS);
+        // 性能优化：增加连接缓存和启用HTTP/2多路复用
+        curl_multi_setopt(mCurlMulti, CURLMOPT_MAX_HOST_CONNECTIONS, MAX_PARALLEL_DOWNLOADS);
+        curl_multi_setopt(mCurlMulti, CURLMOPT_MAX_TOTAL_CONNECTIONS, MAX_PARALLEL_DOWNLOADS * 2);
+        curl_multi_setopt(mCurlMulti, CURLMOPT_PIPELINING, CURLPIPE_MULTIPLEX); // HTTP/2多路复用
         DEBUG_FUNCTION_LINE("CURLM initialized with max %d parallel downloads", MAX_PARALLEL_DOWNLOADS);
-        FileLogger::GetInstance().LogInfo("CURLM initialized with max %d parallel downloads", MAX_PARALLEL_DOWNLOADS);
+        FileLogger::GetInstance().LogInfo("CURLM initialized with max %d parallel downloads + optimizations", MAX_PARALLEL_DOWNLOADS);
     } else {
         DEBUG_FUNCTION_LINE("Failed to initialize CURLM!");
         FileLogger::GetInstance().LogError("Failed to initialize CURLM!");
@@ -105,6 +109,15 @@ void DownloadQueue::TransferStart(DownloadOperation* download) {
     // SSL 设置
     curl_easy_setopt(download->eh, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(download->eh, CURLOPT_SSL_VERIFYHOST, 0L);
+    
+    // 性能优化设置
+    curl_easy_setopt(download->eh, CURLOPT_TCP_KEEPALIVE, 1L);        // 启用TCP keepalive
+    curl_easy_setopt(download->eh, CURLOPT_TCP_KEEPIDLE, 60L);        // keepalive空闲时间
+    curl_easy_setopt(download->eh, CURLOPT_TCP_KEEPINTVL, 60L);       // keepalive探测间隔
+    curl_easy_setopt(download->eh, CURLOPT_FORBID_REUSE, 0L);         // 允许连接复用
+    curl_easy_setopt(download->eh, CURLOPT_FRESH_CONNECT, 0L);        // 优先复用现有连接
+    curl_easy_setopt(download->eh, CURLOPT_BUFFERSIZE, 102400L);      // 增加缓冲区到100KB
+    curl_easy_setopt(download->eh, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0); // 尝试HTTP/2
     
     // POST 数据支持
     struct curl_slist* headers = nullptr;

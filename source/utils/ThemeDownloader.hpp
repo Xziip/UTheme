@@ -40,7 +40,12 @@ public:
     // 取消下载
     void Cancel();
     
+    // 检查磁盘空间 (返回可用空间 MB)
+    static long long GetAvailableDiskSpaceMB();
+    
 private:
+    // 清理下载临时文件
+    void CleanupDownload();
     std::atomic<DownloadState> mState;
     std::atomic<float> mProgress;
     std::atomic<bool> mCancelRequested;

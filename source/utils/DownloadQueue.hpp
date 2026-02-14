@@ -61,6 +61,6 @@ private:
     int mActiveTransfers = 0;              // 活动的传输数量
     
     static DownloadQueue* sDownloadQueue;  // 全局单例
-    static constexpr int MAX_PARALLEL_DOWNLOADS = 4; // 最大并发下载数
+    static constexpr int MAX_PARALLEL_DOWNLOADS = 8; // 最大并发下载数（优化：4->8）
     static constexpr int DOWNLOAD_TIMEOUT_SECONDS = 60; // 下载超时 (60秒)
 };

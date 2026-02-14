@@ -59,6 +59,9 @@ private:
     int mScrollOffset = 0;
     bool mIsLoading = true;
     
+    // 当前激活的主题名称（来自 StyleMiiU 配置）
+    std::string mCurrentThemeName;
+    
     // 长按连续选择
     int mHoldFrames = 0;
     int mRepeatDelay = 30;  // 初始延迟帧数 (约0.5秒)

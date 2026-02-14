@@ -6,8 +6,9 @@
 #include "../utils/LanguageManager.hpp"
 #include "../utils/FileLogger.hpp"
 #include "../utils/ImageLoader.hpp"
-#include "../utils/SimpleJsonParser.hpp"
+#include "../utils/ThemePatcher.hpp"
 #include "../utils/Utils.hpp"
+#include "rapidjson/document.h"
 #include "../input/CombinedInput.h"
 #include "../input/VPADInput.h"
 #include "../input/WPADInput.h"
@@ -22,11 +23,19 @@
 bool ManageScreen::sReturnedDueToEmpty = false;
 
 ManageScreen::ManageScreen() {
+    FileLogger::GetInstance().LogInfo("ManageScreen: Initializing...");
+    
     mTitleAnim.Start(0, 1, 500);
     mContentAnim.Start(0, 1, 600);
     
     // 重置返回标志
     sReturnedDueToEmpty = false;
+    
+    // 获取当前主题名称（用于UI指示器）
+    ThemePatcher patcher;
+    mCurrentThemeName = patcher.GetCurrentTheme();
+    FileLogger::GetInstance().LogInfo("Current theme in StyleMiiU: %s", 
+        mCurrentThemeName.empty() ? "(none)" : mCurrentThemeName.c_str());
     
     // 初始化 ImageLoader
     ImageLoader::Init();
@@ -108,9 +117,12 @@ void ManageScreen::ScanLocalThemes() {
         LoadThemeMetadata(theme);
         
         // 检查是否有修补完成的文件 (Men.pack 或 Men2.pack)
-        std::string patchedPath = theme.path + "/patched/Common/Package";
+        std::string patchedPath = theme.path + "/content/Common/Package";
         struct stat st;
         theme.hasPatched = false;
+        
+        FileLogger::GetInstance().LogInfo("Checking patched status for: %s", theme.name.c_str());
+        FileLogger::GetInstance().LogInfo("Patched path: %s", patchedPath.c_str());
         
         if (stat(patchedPath.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
             std::string menPath = patchedPath + "/Men.pack";
@@ -120,8 +132,14 @@ void ManageScreen::ScanLocalThemes() {
             bool hasMen = (stat(menPath.c_str(), &menSt) == 0);
             bool hasMen2 = (stat(men2Path.c_str(), &men2St) == 0);
             
+            FileLogger::GetInstance().LogInfo("Patch check - Men.pack: %d, Men2.pack: %d", hasMen ? 1 : 0, hasMen2 ? 1 : 0);
+            
             theme.hasPatched = (hasMen || hasMen2);
+        } else {
+            FileLogger::GetInstance().LogInfo("Patched directory not found or not accessible");
         }
+        
+        FileLogger::GetInstance().LogInfo("Theme %s hasPatched = %d", theme.name.c_str(), theme.hasPatched ? 1 : 0);
         
         // 统计 BPS 文件数量
         theme.bpsCount = 0;
@@ -173,31 +191,45 @@ void ManageScreen::LoadThemeMetadata(LocalTheme& theme) {
     
     FileLogger::GetInstance().LogInfo("Parsing metadata for: %s (size: %ld bytes)", theme.name.c_str(), fileSize);
     
-    // 解析 JSON
-    JsonValue root = SimpleJsonParser::Parse(buffer);
-    
-    if (root.has("id")) {
-        theme.id = root["id"].asString();
-        FileLogger::GetInstance().LogInfo("  ID: %s", theme.id.c_str());
-    }
-    if (root.has("author")) {
-        theme.author = root["author"].asString();
-        FileLogger::GetInstance().LogInfo("  Author: %s", theme.author.c_str());
-    } else {
-        theme.author = "Unknown";
-    }
-    if (root.has("description")) theme.description = root["description"].asString();
-    if (root.has("downloads")) theme.downloads = root["downloads"].asInt();
-    if (root.has("likes")) theme.likes = root["likes"].asInt();
-    if (root.has("updatedAt")) theme.updatedAt = root["updatedAt"].asString();
-    
-    // 解析 tags 数组
-    if (root.has("tags") && root["tags"].isArray()) {
-        for (size_t i = 0; i < root["tags"].size(); i++) {
-            if (root["tags"][i].isString()) {
-                theme.tags.push_back(root["tags"][i].asString());
+    // 使用 rapidjson 解析
+    try {
+        rapidjson::Document root;
+        root.Parse(buffer);
+        
+        if (root.HasParseError()) {
+            FileLogger::GetInstance().LogError("JSON parsing failed for %s: parse error", theme.name.c_str());
+        } else {
+            if (root.HasMember("id") && root["id"].IsString()) {
+                theme.id = root["id"].GetString();
+                FileLogger::GetInstance().LogInfo("  ID: %s", theme.id.c_str());
+            }
+            if (root.HasMember("author") && root["author"].IsString()) {
+                theme.author = root["author"].GetString();
+                FileLogger::GetInstance().LogInfo("  Author: %s", theme.author.c_str());
+            } else {
+                theme.author = "Unknown";
+            }
+            if (root.HasMember("description") && root["description"].IsString()) 
+                theme.description = root["description"].GetString();
+            if (root.HasMember("downloads") && root["downloads"].IsInt()) 
+                theme.downloads = root["downloads"].GetInt();
+            if (root.HasMember("likes") && root["likes"].IsInt()) 
+                theme.likes = root["likes"].GetInt();
+            if (root.HasMember("updatedAt") && root["updatedAt"].IsString()) 
+                theme.updatedAt = root["updatedAt"].GetString();
+            
+            // 解析 tags 数组
+            if (root.HasMember("tags") && root["tags"].IsArray()) {
+                const auto& tags = root["tags"];
+                for (rapidjson::SizeType i = 0; i < tags.Size(); i++) {
+                    if (tags[i].IsString()) {
+                        theme.tags.push_back(tags[i].GetString());
+                    }
+                }
             }
         }
+    } catch (const std::exception& e) {
+        FileLogger::GetInstance().LogError("JSON parsing exception for %s: %s", theme.name.c_str(), e.what());
     }
     
     free(buffer);
@@ -331,6 +363,9 @@ void ManageScreen::Draw() {
     DrawBottomBar(bottomHint.c_str(), 
                  (std::string("\ue044 ") + _("input.exit")).c_str(), 
                  (std::string("\ue001 ") + _("input.back")).c_str());
+    
+    // 绘制圆形返回按钮
+    Screen::DrawBackButton();
 }
 
 void ManageScreen::DrawThemeList() {
@@ -574,6 +609,11 @@ void ManageScreen::DrawThemeCard(LocalTheme& theme, int x, int y, int w, int h, 
 }
 
 bool ManageScreen::Update(Input &input) {
+    // 检测返回按钮点击
+    if (Screen::UpdateBackButton(input)) {
+        return false;  // 返回上一级
+    }
+    
     // 如果正在加载，不处理输入
     if (mIsLoading) {
         return true;
