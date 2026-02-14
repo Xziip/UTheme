@@ -30,7 +30,13 @@
     "error": "Error ocurrido",
     "no_themes": "No se encontraron temas",
     "update_available": "Actualizaciones disponibles",
-    "installed": "Descargado"
+    "installed": "Descargado",
+    "local_install": "Instalación local",
+    "search_hint": "Buscar por nombre, autor, etiquetas o T+ID",
+    "search_clear": "Borrar",
+    "search_results": "resultados",
+    "search_keyboard_hint": "Buscar por nombre, autor, etiquetas o T+ID (p.ej. T1, autor, etiqueta)",
+    "random_theme": "Tema Aleatorio"
   },
   "theme_detail": {
     "by": "por",
@@ -42,8 +48,11 @@
     "tags": "Etiquetas",
     "download_theme": "Descargar tema",
     "uninstall_theme": "Desinstalar tema",
-    "uninstall_confirm": "¿Estás seguro de que quieres desinstalar este tema?",
-    "uninstall_complete": "¡Desinstalación completada!",
+    "set_current_theme": "Establecer como tema actual",
+    "set_current_confirm": "¿Deseas establecer este como tu nuevo tema del menú de Wii U?",
+    "setting_current": "Estableciendo el tema actual...",
+    "set_current_complete": "¡Tema actual actualizado!",
+    "uninstall_confirm": "¿ Estás seguro de que quieres desinstalar este tema?",    "uninstalling": "Desinstalando tema...",    "uninstall_complete": "¡Desinstalación completada!",
     "downloading": "Descargando tema...",
     "extracting": "Extrayendo...",
     "installing": "Instalando tema...",
@@ -52,11 +61,12 @@
     "install_error": "Instalación fallida",
     "error": "Descarga fallida",
     "loading_preview": "Cargando vista previa...",
-    "hints": "B: Atrás  |  A: Descargar  |  <Flechas>: Cambiar vista previa",
+    "hints": "B: Atrás  |  A: Descargar  |  <Arrow>: Cambiar vista previa",
+    "hints_local": "B: Atrás  |  A: Desinstalar  | Y: Establecer actual |  <Arrow>: Cambiar vista previa",
     "preview_collage": "Collage",
     "preview_launcher": "Lanzador",
     "preview_wara_wara": "Plaza Wara Wara",
-    "fullscreen_hint_switch": "<Flechas>: Cambiar",
+    "fullscreen_hint_switch": "<Arrow>: Cambiar",
     "fullscreen_hint_exit": "B / Táctil: Salir"
   },
   "manage": {
@@ -71,6 +81,8 @@
     "install": "Instalar tema",
     "uninstall": "Desinstalar tema",
     "installed": "Descargado",
+    "ready": "Listo",
+    "current": "Tema actual",
     "developing": "Función en desarrollo",
     "install_local": "Instalar tema local"
   },

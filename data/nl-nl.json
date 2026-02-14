@@ -30,7 +30,13 @@
     "error": "Er is een fout opgetreden",
     "no_themes": "Geen thema's gevonden",
     "update_available": "Update beschikbaar",
-    "installed": "Gedownload"
+    "installed": "Gedownload",
+    "local_install": "Lokale installatie",
+    "search_hint": "Zoeken op naam, auteur, tags of T+ID",
+    "search_clear": "Wissen",
+    "search_results": "resultaten",
+    "search_keyboard_hint": "Zoeken op naam, auteur, tags of T+ID (bijv. T1, auteur, tag)",
+    "random_theme": "Willekeurig Thema"
   },
   "theme_detail": {
     "by": "Door:",
@@ -42,7 +48,12 @@
     "tags": "Tags",
     "download_theme": "Thema Downloaden",
     "uninstall_theme": "Thema Verwijderen",
+    "set_current_theme": "Instellen als Huidig Thema",
+    "set_current_confirm": "Wil je dit instellen als je nieuwe Wii U-menuthema?",
+    "setting_current": "Huidig thema instellen...",
+    "set_current_complete": "Huidig thema bijgewerkt!",
     "uninstall_confirm": "Weet je zeker dat je dit thema wilt verwijderen?",
+    "uninstalling": "Thema verwijderen...",
     "uninstall_complete": "Verwijdering voltooid!",
     "downloading": "Thema downloaden...",
     "extracting": "Uitpakken...",
@@ -52,11 +63,12 @@
     "install_error": "Installatiefout",
     "error": "Downloadfout",
     "loading_preview": "Voorvertoning laden...",
-    "hints": "B: Terug  |  A: Downloaden  |  <Pijlen>: Voorvertoning wisselen",
+    "hints": "B: Terug  |  A: Downloaden  |  <Arrow>: Voorvertoning wisselen",
+    "hints_local": "B: Terug  |  A: Verwijderen  | Y: Als huidig instellen |  <Arrow>: Voorvertoning wisselen",
     "preview_collage": "Collage",
     "preview_launcher": "Launcher",
     "preview_wara_wara": "Wara Wara Plaza",
-    "fullscreen_hint_switch": "<Pijlen>: Wisselen",
+    "fullscreen_hint_switch": "<Arrow>: Wisselen",
     "fullscreen_hint_exit": "B / Aanraking: Afsluiten"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Thema Installeren",
     "uninstall": "Thema Verwijderen",
     "installed": "Gedownload",
+    "ready": "Klaar",
+    "current": "Huidig Thema",
     "developing": "Functie in ontwikkeling",
     "install_local": "Lokaal Thema Installeren"
   },

@@ -30,7 +30,13 @@
     "error": "Fehler aufgetreten",
     "no_themes": "Keine Themes gefunden",
     "update_available": "Updates verfügbar",
-    "installed": "Heruntergeladen"
+    "installed": "Heruntergeladen",
+    "local_install": "Lokale Installation",
+    "search_hint": "Nach Name, Autor, Tags oder T+ID suchen",
+    "search_clear": "Löschen",
+    "search_results": "Ergebnisse",
+    "search_keyboard_hint": "Nach Name, Autor, Tags oder T+ID suchen (z.B. T1, Autor, Tag)",
+    "random_theme": "Zufälliges Thema"
   },
   "theme_detail": {
     "by": "von",
@@ -42,7 +48,12 @@
     "tags": "Tags",
     "download_theme": "Theme herunterladen",
     "uninstall_theme": "Theme deinstallieren",
+    "set_current_theme": "Als aktuelles Theme festlegen",
+    "set_current_confirm": "Möchten Sie dies als neues Wii U-Menü-Theme festlegen?",
+    "setting_current": "Theme wird als aktuell festgelegt...",
+    "set_current_complete": "Aktuelles Theme aktualisiert!",
     "uninstall_confirm": "Möchten Sie dieses Theme wirklich deinstallieren?",
+    "uninstalling": "Theme wird deinstalliert...",
     "uninstall_complete": "Deinstallation abgeschlossen!",
     "downloading": "Theme wird heruntergeladen...",
     "extracting": "Wird entpackt...",
@@ -52,11 +63,12 @@
     "install_error": "Installation fehlgeschlagen",
     "error": "Download fehlgeschlagen",
     "loading_preview": "Vorschau wird geladen...",
-    "hints": "B: Zurück  |  A: Herunterladen  |  <Pfeile>: Vorschau wechseln",
+    "hints": "B: Zurück  |  A: Herunterladen  |  <Arrow>: Vorschau wechseln",
+    "hints_local": "B: Zurück  |  A: Deinstallieren  | Y: Als aktuell festlegen |  <Arrow>: Vorschau wechseln",
     "preview_collage": "Collage",
     "preview_launcher": "Launcher",
     "preview_wara_wara": "Wara Wara-Platz",
-    "fullscreen_hint_switch": "<Pfeile>: Wechseln",
+    "fullscreen_hint_switch": "<Arrow>: Wechseln",
     "fullscreen_hint_exit": "B / Touch: Beenden"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Theme installieren",
     "uninstall": "Theme deinstallieren",
     "installed": "Heruntergeladen",
+    "ready": "Bereit",
+    "current": "Aktuelles Theme",
     "developing": "Funktion in Entwicklung",
     "install_local": "Lokales Theme installieren"
   },

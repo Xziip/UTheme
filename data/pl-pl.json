@@ -30,7 +30,13 @@
     "error": "Wystąpił błąd",
     "no_themes": "Nie znaleziono motywów",
     "update_available": "Dostępna aktualizacja",
-    "installed": "Pobrano"
+    "installed": "Pobrano",
+    "local_install": "Instalacja lokalna",
+    "search_hint": "Szukaj według nazwy, autora, tagów lub T+ID",
+    "search_clear": "Wyczyść",
+    "search_results": "wyników",
+    "search_keyboard_hint": "Szukaj według nazwy, autora, tagów lub T+ID (np. T1, autor, tag)",
+    "random_theme": "Losowy Motyw"
   },
   "theme_detail": {
     "by": "Autor:",
@@ -42,7 +48,12 @@
     "tags": "Tagi",
     "download_theme": "Pobierz Motyw",
     "uninstall_theme": "Odinstaluj Motyw",
+    "set_current_theme": "Ustaw jako Aktualny Motyw",
+    "set_current_confirm": "Czy chcesz ustawić to jako nowy motyw menu Wii U?",
+    "setting_current": "Ustawianie aktualnego motywu...",
+    "set_current_complete": "Aktualny motyw zaktualizowany!",
     "uninstall_confirm": "Czy na pewno chcesz odinstalować ten motyw?",
+    "uninstalling": "Odinstalowywanie motywu...",
     "uninstall_complete": "Odinstalowanie zakończone!",
     "downloading": "Pobieranie motywu...",
     "extracting": "Rozpakowywanie...",
@@ -52,11 +63,12 @@
     "install_error": "Błąd instalacji",
     "error": "Błąd pobierania",
     "loading_preview": "Ładowanie podglądu...",
-    "hints": "B: Powrót  |  A: Pobierz  |  <Strzałki>: Zmień podgląd",
+    "hints": "B: Powrót  |  A: Pobierz  |  <Arrow>: Zmień podgląd",
+    "hints_local": "B: Powrót  |  A: Odinstaluj  | Y: Ustaw jako aktualny |  <Arrow>: Zmień podgląd",
     "preview_collage": "Kolaż",
     "preview_launcher": "Launcher",
     "preview_wara_wara": "Plac Wara Wara",
-    "fullscreen_hint_switch": "<Strzałki>: Przełącz",
+    "fullscreen_hint_switch": "<Arrow>: Przełącz",
     "fullscreen_hint_exit": "B / Dotknięcie: Wyjście"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Zainstaluj Motyw",
     "uninstall": "Odinstaluj Motyw",
     "installed": "Pobrano",
+    "ready": "Gotowy",
+    "current": "Aktualny Motyw",
     "developing": "Funkcja w opracowaniu",
     "install_local": "Zainstaluj Lokalny Motyw"
   },

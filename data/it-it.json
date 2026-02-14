@@ -30,7 +30,13 @@
     "error": "Si è verificato un errore",
     "no_themes": "Nessun tema trovato",
     "update_available": "Aggiornamento disponibile",
-    "installed": "Scaricato"
+    "installed": "Scaricato",
+    "local_install": "Installazione locale",
+    "search_hint": "Cerca per nome, autore, tag o T+ID",
+    "search_clear": "Cancella",
+    "search_results": "risultati",
+    "search_keyboard_hint": "Cerca per nome, autore, tag o T+ID (es. T1, autore, tag)",
+    "random_theme": "Tema Casuale"
   },
   "theme_detail": {
     "by": "Di:",
@@ -42,7 +48,12 @@
     "tags": "Tag",
     "download_theme": "Scarica Tema",
     "uninstall_theme": "Disinstalla Tema",
+    "set_current_theme": "Imposta come Tema Corrente",
+    "set_current_confirm": "Vuoi impostare questo come nuovo tema del menu Wii U?",
+    "setting_current": "Impostazione tema corrente...",
+    "set_current_complete": "Tema corrente aggiornato!",
     "uninstall_confirm": "Sei sicuro di voler disinstallare questo tema?",
+    "uninstalling": "Disinstallazione tema...",
     "uninstall_complete": "Disinstallazione completata!",
     "downloading": "Download tema in corso...",
     "extracting": "Estrazione in corso...",
@@ -52,11 +63,12 @@
     "install_error": "Installazione fallita",
     "error": "Download fallito",
     "loading_preview": "Caricamento anteprima...",
-    "hints": "B: Indietro  |  A: Scarica  |  <Frecce>: Cambia anteprima",
+    "hints": "B: Indietro  |  A: Scarica  |  <Arrow>: Cambia anteprima",
+    "hints_local": "B: Indietro  |  A: Disinstalla  | Y: Imposta corrente |  <Arrow>: Cambia anteprima",
     "preview_collage": "Collage",
     "preview_launcher": "Launcher",
     "preview_wara_wara": "Piazza Wara Wara",
-    "fullscreen_hint_switch": "<Frecce>: Cambia",
+    "fullscreen_hint_switch": "<Arrow>: Cambia",
     "fullscreen_hint_exit": "B / Touch: Esci"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Installa Tema",
     "uninstall": "Disinstalla Tema",
     "installed": "Scaricato",
+    "ready": "Pronto",
+    "current": "Tema Corrente",
     "developing": "Funzionalità in sviluppo",
     "install_local": "Installa Tema Locale"
   },

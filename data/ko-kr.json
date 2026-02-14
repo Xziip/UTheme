@@ -30,7 +30,13 @@
     "error": "오류 발생",
     "no_themes": "테마를 찾을 수 없습니다",
     "update_available": "업데이트 가능",
-    "installed": "다운로드됨"
+    "installed": "다운로드됨",
+    "local_install": "로컬 설치",
+    "search_hint": "이름, 제작자, 태그 또는 T+ID로 검색",
+    "search_clear": "지우기",
+    "search_results": "개 결과",
+    "search_keyboard_hint": "이름, 제작자, 태그 또는 T+ID로 검색 (예: T1, 제작자, 태그)",
+    "random_theme": "랜덤 테마"
   },
   "theme_detail": {
     "by": "제작:",
@@ -42,7 +48,12 @@
     "tags": "태그",
     "download_theme": "테마 다운로드",
     "uninstall_theme": "테마 제거",
+    "set_current_theme": "현재 테마로 설정",
+    "set_current_confirm": "이것을 새로운 Wii U 메뉴 테마로 설정하시겠습니까?",
+    "setting_current": "현재 테마 설정 중...",
+    "set_current_complete": "현재 테마가 업데이트되었습니다!",
     "uninstall_confirm": "이 테마를 제거하시겠습니까?",
+    "uninstalling": "테마 제거 중...",
     "uninstall_complete": "제거 완료!",
     "downloading": "테마 다운로드 중...",
     "extracting": "압축 해제 중...",
@@ -52,11 +63,12 @@
     "install_error": "설치 실패",
     "error": "다운로드 실패",
     "loading_preview": "미리보기 로드 중...",
-    "hints": "B: 뒤로  |  A: 다운로드  |  <화살표>: 미리보기 전환",
+    "hints": "B: 뒤로  |  A: 다운로드  |  <Arrow>: 미리보기 전환",
+    "hints_local": "B: 뒤로  |  A: 제거  | Y: 현재 테마로 설정 |  <Arrow>: 미리보기 전환",
     "preview_collage": "콜라주",
     "preview_launcher": "런처",
     "preview_wara_wara": "와라와라 광장",
-    "fullscreen_hint_switch": "<화살표>: 전환",
+    "fullscreen_hint_switch": "<Arrow>: 전환",
     "fullscreen_hint_exit": "B / 터치: 종료"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "테마 설치",
     "uninstall": "테마 제거",
     "installed": "다운로드됨",
+    "ready": "준비됨",
+    "current": "현재 테마",
     "developing": "기능 개발 중",
     "install_local": "로컬 테마 설치"
   },

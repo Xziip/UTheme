@@ -30,7 +30,13 @@
     "error": "發生錯誤",
     "no_themes": "未找到主題",
     "update_available": "有新版本",
-    "installed": "已下載"
+    "installed": "已下載",
+    "local_install": "本地安裝",
+    "search_hint": "搜尋主題名稱、作者、標籤或 T+數字ID",
+    "search_clear": "清除",
+    "search_results": "個結果",
+    "search_keyboard_hint": "搜尋主題名稱、作者、標籤或 T+ID (例如: T1, 作者名, 標籤)",
+    "random_theme": "隨機主題"
   },
   "theme_detail": {
     "by": "作者:",
@@ -42,7 +48,12 @@
     "tags": "標籤",
     "download_theme": "下載主題",
     "uninstall_theme": "解除安裝主題",
+    "set_current_theme": "設為目前主題",
+    "set_current_confirm": "您要將此設為新的 Wii U 選單主題嗎?",
+    "setting_current": "正在設定目前主題...",
+    "set_current_complete": "目前主題已更新!",
     "uninstall_confirm": "確定要解除安裝此主題嗎?",
+    "uninstalling": "正在解除安裝主題...",
     "uninstall_complete": "解除安裝完成!",
     "downloading": "正在下載主題...",
     "extracting": "正在解壓縮...",
@@ -52,11 +63,12 @@
     "install_error": "安裝失敗",
     "error": "下載失敗",
     "loading_preview": "載入預覽圖...",
-    "hints": "B: 返回  |  A: 下載  |  <方向鍵>: 切換預覽圖",
+    "hints": "B: 返回  |  A: 下載  |  <Arrow>: 切換預覽圖",
+    "hints_local": "B: 返回  |  A: 解除安裝  | Y: 設為目前主題 |  <Arrow>: 切換預覽圖",
     "preview_collage": "拼貼圖",
     "preview_launcher": "啟動器",
     "preview_wara_wara": "Wara Wara 廣場",
-    "fullscreen_hint_switch": "<方向鍵>: 切換",
+    "fullscreen_hint_switch": "<Arrow>: 切換",
     "fullscreen_hint_exit": "B / 觸控: 離開"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "安裝主題",
     "uninstall": "解除安裝主題",
     "installed": "已下載",
+    "ready": "待安裝",
+    "current": "目前主題",
     "developing": "功能開發中",
     "install_local": "安裝本機主題"
   },

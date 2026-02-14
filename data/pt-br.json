@@ -30,7 +30,13 @@
     "error": "Ocorreu um erro",
     "no_themes": "Nenhum tema encontrado",
     "update_available": "Atualização disponível",
-    "installed": "Baixado"
+    "installed": "Baixado",
+    "local_install": "Instalação local",
+    "search_hint": "Pesquisar por nome, autor, tags ou T+ID",
+    "search_clear": "Limpar",
+    "search_results": "resultados",
+    "search_keyboard_hint": "Pesquisar por nome, autor, tags ou T+ID (ex: T1, autor, tag)",
+    "random_theme": "Tema Aleatório"
   },
   "theme_detail": {
     "by": "Por:",
@@ -42,7 +48,12 @@
     "tags": "Tags",
     "download_theme": "Baixar Tema",
     "uninstall_theme": "Desinstalar Tema",
+    "set_current_theme": "Definir como Tema Atual",
+    "set_current_confirm": "Deseja definir este como seu novo tema do menu Wii U?",
+    "setting_current": "Definindo o tema atual...",
+    "set_current_complete": "Tema atual atualizado!",
     "uninstall_confirm": "Tem certeza de que deseja desinstalar este tema?",
+    "uninstalling": "Desinstalando tema...",
     "uninstall_complete": "Desinstalação concluída!",
     "downloading": "Baixando tema...",
     "extracting": "Extraindo...",
@@ -52,11 +63,12 @@
     "install_error": "Erro na instalação",
     "error": "Erro no download",
     "loading_preview": "Carregando prévia...",
-    "hints": "B: Voltar  |  A: Baixar  |  <Setas>: Mudar prévia",
+    "hints": "B: Voltar  |  A: Baixar  |  <Arrow>: Mudar prévia",
+    "hints_local": "B: Voltar  |  A: Desinstalar  | Y: Definir como atual |  <Arrow>: Mudar prévia",
     "preview_collage": "Colagem",
     "preview_launcher": "Lançador",
     "preview_wara_wara": "Praça Wara Wara",
-    "fullscreen_hint_switch": "<Setas>: Alternar",
+    "fullscreen_hint_switch": "<Arrow>: Alternar",
     "fullscreen_hint_exit": "B / Toque: Sair"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Instalar Tema",
     "uninstall": "Desinstalar Tema",
     "installed": "Baixado",
+    "ready": "Pronto",
+    "current": "Tema Atual",
     "developing": "Recurso em desenvolvimento",
     "install_local": "Instalar Tema Local"
   },

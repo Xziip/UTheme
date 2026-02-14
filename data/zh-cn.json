@@ -31,7 +31,12 @@
     "error": "发生错误",
     "no_themes": "未找到主题",
     "update_available": "有新版本",
-    "installed": "已下载"
+    "installed": "已下载",
+    "search_hint": "搜索主题名称、作者、标签或 T+数字ID",
+    "search_clear": "清除",
+    "search_results": "个结果",
+    "search_keyboard_hint": "搜索主题名称、作者、标签或 T+ID (例如: T1, 作者名, 标签)",
+    "random_theme": "随机主题"
   },
   "theme_detail": {
     "by": "作者:",
@@ -43,7 +48,12 @@
     "tags": "标签",
     "download_theme": "下载主题",
     "uninstall_theme": "卸载主题",
+    "set_current_theme": "设为当前主题",
+    "set_current_confirm": "是否将此主题设为新的 Wii U 菜单主题?",
+    "setting_current": "正在设置当前主题...",
+    "set_current_complete": "当前主题已更新!",
     "uninstall_confirm": "确定要卸载此主题吗?",
+    "uninstalling": "正在卸载主题...",
     "uninstall_complete": "卸载完成!",
     "downloading": "正在下载主题...",
     "extracting": "正在解压...",
@@ -54,6 +64,7 @@
     "error": "下载失败",
     "loading_preview": "加载预览图...",
     "hints": "B: 返回  |  A: 下载  |  <Arrow>: 切换预览图",
+    "hints_local": "B: 返回  |  A: 卸载  | Y: 设为当前主题 |  <Arrow>: 切换预览图",
     "preview_collage": "拼贴图",
     "preview_launcher": "启动器",
     "preview_wara_wara": "Wara Wara 广场",
@@ -72,6 +83,7 @@
     "install": "安装主题",
     "uninstall": "卸载主题",
     "installed": "已下载",
+    "ready": "待安装",
     "developing": "功能开发中",
     "install_local": "安装本地主题"
   },

@@ -31,7 +31,12 @@
     "error": "Error Occurred",
     "no_themes": "No themes found",
     "update_available": "Updates Available",
-    "installed": "Downloaded"
+    "installed": "Downloaded",
+    "search_hint": "Search by name, author, tags or T+ID",
+    "search_clear": "Clear",
+    "search_results": "results",
+    "search_keyboard_hint": "Search by name, author, tags or T+ID (e.g., T1, author, tag)",
+    "random_theme": "Random Theme"
   },
   "theme_detail": {
     "by": "by",
@@ -43,7 +48,12 @@
     "tags": "Tags",
     "download_theme": "Download Theme",
     "uninstall_theme": "Uninstall Theme",
+    "set_current_theme": "Set as Current Theme",
+    "set_current_confirm": "Would you like to set this as your new Wii U Menu Theme?",
+    "setting_current": "Setting the current theme...",
+    "set_current_complete": "Current theme updated!",
     "uninstall_confirm": "Are you sure you want to uninstall this theme?",
+    "uninstalling": "Uninstalling theme...",
     "uninstall_complete": "Uninstall complete!",
     "downloading": "Downloading theme...",
     "extracting": "Extracting...",
@@ -54,6 +64,7 @@
     "error": "Download failed",
     "loading_preview": "Loading preview...",
     "hints": "B: Back  |  A: Download  |  <Arrow>: Switch Preview",
+    "hints_local": "B: Back  |  A: Uninstall  | Y: Set as Current |  <Arrow>: Switch Preview",
     "preview_collage": "Collage",
     "preview_launcher": "Launcher",
     "preview_wara_wara": "Wara Wara Plaza",
@@ -72,6 +83,8 @@
     "install": "Install Theme",
     "uninstall": "Uninstall Theme",
     "installed": "Downloaded",
+    "ready": "Ready",
+    "current": "Current Theme",
     "developing": "Feature in development",
     "install_local": "Install Local Theme"
   },

@@ -31,7 +31,12 @@
     "error": "エラーが発生しました",
     "no_themes": "テーマが見つかりません",
     "update_available": "アップデートあり",
-    "installed": "ダウンロード済み"
+    "installed": "ダウンロード済み",
+    "search_hint": "名前、作者、タグ、またはT+IDで検索",
+    "search_clear": "クリア",
+    "search_results": "件の結果",
+    "search_keyboard_hint": "名前、作者、タグ、またはT+IDで検索 (例: T1、作者名、タグ)",
+    "random_theme": "ランダムテーマ"
   },
   "theme_detail": {
     "by": "作者:",
@@ -43,7 +48,12 @@
     "tags": "タグ",
     "download_theme": "テーマをダウンロード",
     "uninstall_theme": "テーマをアンインストール",
+    "set_current_theme": "現在のテーマとして設定",
+    "set_current_confirm": "これを新しいWii Uメニューテーマとして設定しますか?",
+    "setting_current": "現在のテーマを設定中...",
+    "set_current_complete": "現在のテーマを更新しました!",
     "uninstall_confirm": "このテーマをアンインストールしますか?",
+    "uninstalling": "テーマをアンインストール中...",
     "uninstall_complete": "アンインストール完了!",
     "downloading": "テーマをダウンロード中...",
     "extracting": "展開中...",
@@ -54,6 +64,7 @@
     "error": "ダウンロード失敗",
     "loading_preview": "プレビューを読み込み中...",
     "hints": "B: 戻る  |  A: ダウンロード  |  <Arrow>: プレビュー切替",
+    "hints_local": "B: 戻る  |  A: アンインストール  | Y: 現在のテーマに設定 |  <Arrow>: プレビュー切替",
     "preview_collage": "コラージュ",
     "preview_launcher": "ランチャー",
     "preview_wara_wara": "ワラワラ広場",
@@ -72,6 +83,8 @@
     "install": "テーマをインストール",
     "uninstall": "テーマをアンインストール",
     "installed": "ダウンロード済み",
+    "ready": "準備完了",
+    "current": "現在のテーマ",
     "developing": "機能開発中",
     "install_local": "ローカルテーマをインストール"
   },

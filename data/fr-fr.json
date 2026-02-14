@@ -30,7 +30,13 @@
     "error": "Erreur survenue",
     "no_themes": "Aucun thème trouvé",
     "update_available": "Mises à jour disponibles",
-    "installed": "Téléchargé"
+    "installed": "Téléchargé",
+    "local_install": "Installation locale",
+    "search_hint": "Rechercher par nom, auteur, étiquettes ou T+ID",
+    "search_clear": "Effacer",
+    "search_results": "résultats",
+    "search_keyboard_hint": "Rechercher par nom, auteur, étiquettes ou T+ID (p.ex. T1, auteur, étiquette)",
+    "random_theme": "Thème Aléatoire"
   },
   "theme_detail": {
     "by": "par",
@@ -42,7 +48,12 @@
     "tags": "Tags",
     "download_theme": "Télécharger le thème",
     "uninstall_theme": "Désinstaller le thème",
+    "set_current_theme": "Définir comme thème actuel",
+    "set_current_confirm": "Voulez-vous définir ceci comme votre nouveau thème du menu Wii U?",
+    "setting_current": "Définition du thème actuel...",
+    "set_current_complete": "Thème actuel mis à jour!",
     "uninstall_confirm": "Voulez-vous vraiment désinstaller ce thème?",
+    "uninstalling": "Désinstallation du thème...",
     "uninstall_complete": "Désinstallation terminée!",
     "downloading": "Téléchargement du thème...",
     "extracting": "Extraction...",
@@ -52,11 +63,12 @@
     "install_error": "Échec de l'installation",
     "error": "Échec du téléchargement",
     "loading_preview": "Chargement de l'aperçu...",
-    "hints": "B: Retour  |  A: Télécharger  |  <Flèches>: Changer l'aperçu",
+    "hints": "B: Retour  |  A: Télécharger  |  <Arrow>: Changer l'aperçu",
+    "hints_local": "B: Retour  |  A: Désinstaller  | Y: Définir actuel |  <Arrow>: Changer l'aperçu",
     "preview_collage": "Collage",
     "preview_launcher": "Lanceur",
     "preview_wara_wara": "Place Wara Wara",
-    "fullscreen_hint_switch": "<Flèches>: Changer",
+    "fullscreen_hint_switch": "<Arrow>: Changer",
     "fullscreen_hint_exit": "B / Tactile: Quitter"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Installer le thème",
     "uninstall": "Désinstaller le thème",
     "installed": "Téléchargé",
+    "ready": "Prêt",
+    "current": "Thème actuel",
     "developing": "Fonctionnalité en développement",
     "install_local": "Installer un thème local"
   },

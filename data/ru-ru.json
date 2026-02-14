@@ -30,7 +30,13 @@
     "error": "Произошла ошибка",
     "no_themes": "Темы не найдены",
     "update_available": "Доступно обновление",
-    "installed": "Загружено"
+    "installed": "Загружено",
+    "local_install": "Локальная установка",
+    "search_hint": "Поиск по имени, автору, тегам или T+ID",
+    "search_clear": "Очистить",
+    "search_results": "результатов",
+    "search_keyboard_hint": "Искать по имени, автору, тегам или T+ID (напр.: T1, автор, тег)",
+    "random_theme": "Случайная Тема"
   },
   "theme_detail": {
     "by": "Автор:",
@@ -42,7 +48,12 @@
     "tags": "Теги",
     "download_theme": "Скачать тему",
     "uninstall_theme": "Удалить тему",
+    "set_current_theme": "Установить как текущую тему",
+    "set_current_confirm": "Хотите установить это как новую тему меню Wii U?",
+    "setting_current": "Установка текущей темы...",
+    "set_current_complete": "Текущая тема обновлена!",
     "uninstall_confirm": "Вы уверены, что хотите удалить эту тему?",
+    "uninstalling": "Удаление темы...",
     "uninstall_complete": "Удаление завершено!",
     "downloading": "Загрузка темы...",
     "extracting": "Распаковка...",
@@ -52,11 +63,12 @@
     "install_error": "Ошибка установки",
     "error": "Ошибка загрузки",
     "loading_preview": "Загрузка превью...",
-    "hints": "B: Назад  |  A: Скачать  |  <Стрелки>: Сменить превью",
+    "hints": "B: Назад  |  A: Скачать  |  <Arrow>: Сменить превью",
+    "hints_local": "B: Назад  |  A: Удалить  | Y: Установить текущей |  <Arrow>: Сменить превью",
     "preview_collage": "Коллаж",
     "preview_launcher": "Лаунчер",
     "preview_wara_wara": "Площадь Wara Wara",
-    "fullscreen_hint_switch": "<Стрелки>: Переключить",
+    "fullscreen_hint_switch": "<Arrow>: Переключить",
     "fullscreen_hint_exit": "B / Касание: Выход"
   },
   "manage": {
@@ -71,6 +83,8 @@
     "install": "Установить тему",
     "uninstall": "Удалить тему",
     "installed": "Загружено",
+    "ready": "Готово",
+    "current": "Текущая тема",
     "developing": "Функция в разработке",
     "install_local": "Установить локальную тему"
   },
