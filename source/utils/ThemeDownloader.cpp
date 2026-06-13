@@ -410,7 +410,7 @@ bool ThemeDownloader::DownloadFile(const std::string& url, const std::string& ou
     curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, APP_USER_AGENT);
     
     // 性能优化设置
     curl_easy_setopt(curl, CURLOPT_TCP_KEEPALIVE, 1L);        // TCP keepalive

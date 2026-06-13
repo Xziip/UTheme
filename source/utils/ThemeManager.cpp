@@ -131,7 +131,7 @@ std::string ThemeManager::FetchUrl(const std::string& url, const std::string& po
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, APP_USER_AGENT);
     
     // 如果有 POST 数据,设置 POST 请求
     if (!postData.empty()) {

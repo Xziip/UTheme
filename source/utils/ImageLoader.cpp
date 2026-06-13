@@ -505,7 +505,7 @@ std::vector<uint8_t> ImageLoader::DownloadData(const std::string& url) {
     curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 20L);  // 增加连接超时
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0 (Wii U)");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, APP_USER_AGENT);
     curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);  // 启用详细日志
     
     // 性能优化

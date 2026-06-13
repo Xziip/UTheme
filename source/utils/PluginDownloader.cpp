@@ -188,7 +188,7 @@ void PluginDownloader::PerformDownload() {
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 300L);
-    curl_easy_setopt(curl, CURLOPT_USERAGENT, "UTheme/1.0");
+    curl_easy_setopt(curl, CURLOPT_USERAGENT, APP_USER_AGENT);
     
     // 执行下载(在后台线程中,不影响UI)
     CURLcode res = curl_easy_perform(curl);
